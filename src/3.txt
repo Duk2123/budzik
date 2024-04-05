@@ -2,21 +2,30 @@
 #include <TFT_eSPI.h>
 TFT_eSPI tft = TFT_eSPI();
 
+String action = "";
+
 TaskHandle_t touch_handle;
 void touch(void *params)
 {
   Serial.println("task created");
-  uint16_t x, y;
+  uint16_t x, y, z, xr, yr;
   int status;
 
   for (;;)
   {
+    // Check if screen is being touched
     status = analogRead(8);
-    vTaskDelay(25);
     if (status == 0)
     {
-      tft.getTouch(&x, &y);
-      Serial.printf("\nx: %d, y: %d", x, y);
+      z = tft.getTouchRawZ();
+      tft.getTouch(&x, &y, 600);
+      tft.getTouchRaw(&xr, &yr);
+      Serial.printf("\nx: %d, y: %d | xr: %d, yr: %d | z: %d", x, y, xr, yr, z);
+      vTaskDelay(10);
+    }
+    else
+    {
+      vTaskDelay(25);
     }
   }
 }
@@ -30,8 +39,10 @@ void setup(void)
   tft.init();
   tft.setRotation(1);
 
-  uint16_t calData[5] = { 279, 3617, 186, 3668, 7 };
+  uint16_t calData[5] = {140, 4015, 210, 4063, 7};
   tft.setTouch(calData);
+  // https://github.com/PaulStoffregen/XPT2046_Touchscreen
+  // jak będą problemy z wykrywaniem dotyku
 
   xTaskCreate(touch, "touch", 10024, NULL, 1, &touch_handle);
 
@@ -41,6 +52,3 @@ void setup(void)
 void loop()
 {
 }
-
-
-//https://github.com/PaulStoffregen/XPT2046_Touchscreen
