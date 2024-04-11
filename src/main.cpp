@@ -1,6 +1,4 @@
-#include <SPI.h>
-#include <TFT_eSPI.h>
-#include <utility>
+#include <globals.h>
 
 TFT_eSPI tft = TFT_eSPI();
 // https://github.com/PaulStoffregen/XPT2046_Touchscreen
@@ -15,26 +13,6 @@ TFT_eSPI tft = TFT_eSPI();
  touchQueuedAction[2] - y coordinates or deviation in case of swipe
 */
 short touchQueuedAction[3];
-
-void menuScreen()
-{
-  tft.fillScreen(0);
-  tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(3);
-  tft.setCursor(20, 20, 4);
-  tft.print("MENU");
-  tft.setTextSize(1);
-
-  tft.setCursor(68, 141, 4);
-  tft.print("Opcja 1");
-
-  tft.setCursor(329, 141, 4);
-  tft.print("Opcja 2");
-
-  tft.drawRect(90, 190, 40, 40, TFT_RED);
-  tft.drawRect(220, 190, 40, 40, TFT_GREEN);
-  tft.drawRect(350, 190, 40, 40, TFT_BLUE);
-}
 
 // TODO Potencjalnie zaimplementować obiekt z detalami o elementach interaktywnych scen.
 TaskHandle_t updateDisplay_t;
@@ -88,7 +66,7 @@ void detectTouch(void *params)
           x += vx / 2;
           y += vy / 2;
           tft.convertRawXY(&x, &y);
-          // Throw warring for conversion error //TODO add proper warn/error handling
+          // Throw warning for conversion error //TODO add proper warn/error handling
           if (x + y > 1000)
           {
             Serial.println("Coordinates conversion error");
