@@ -8,7 +8,7 @@ TFT_eSPI tft = TFT_eSPI();
  touchQueuedAction[0] - type of action: //TODO (potencjalnie zastąpić event group albo task notify z rtos)
     0 - longPress
     1 - swipe
-    3 - press
+    2 - press
  touchQueuedAction[1] - x coordinates or deviation in case of swipe
  touchQueuedAction[2] - y coordinates or deviation in case of swipe
 */
