@@ -1,35 +1,74 @@
 #include <globals.h>
 
-class Screen
+Screen *activeScreen;
+
+Screen BlankScreen({{-999, 999}}, {{-999, 999}}, {{-999, 999}},
+                   {menuScreen}, {menuScreen}, {menuScreen});
+
+Screen MenuScreen({{-999, 999}}, {}, {{110, 210}, {240, 210}, {370, 210}},
+                  {displaySleep}, {}, {clockScreen, test1Screen, test2Screen});
+
+Screen ClockScreen({{-999, 999}}, {{0, -390}}, {},
+                   {displaySleep}, {menuScreen}, {});
+
+Screen Test1Screen({}, {{-999, 999}}, {},
+                   {}, {menuScreen}, {});
+
+Screen Test2Screen({{-999, 999}}, {{-540, 0}, {540, 0}, {0, 390}, {0, -390}}, {},
+                   {menuScreen}, {testR, testL, testU, testD}, {});
+
+void displaySleep()
 {
-public:
-    String name;
-    std::map<std::pair<short, short>, void (*)()> actionDictionary[3];
-
-    Screen(String val1, std::map<std::pair<short, short>, void (*)()> val2 = {}, std::map<std::pair<short, short>, void (*)()> val3 = {}, std::map<std::pair<short, short>, void (*)()> val4 = {})
+    if (brightness > 0)
     {
-        name = val1;
-        actionDictionary[0] = val2;
-        actionDictionary[1] = val3;
-        actionDictionary[2] = val4;
+        setBrightness(0);
     }
-};
+    else
+    {
+        setBrightness(prevBrightness);
+    }
+}
 
-Screen screens[2] = {
-    // "nameOfScreen", {dictionary of {x,y}, action for actionType 0'long press'}, -//- for swipe, -//- for press
-    {"menu", {}, {}, {{{110, 210}, clockScreen}}},
-    {"clock", {}, {{{0, -40}, menuScreen}}, {}}};
+void test1Screen()
+{
+    activeScreen = &Test1Screen;
+    tft.fillScreen(0);
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(3);
+    tft.setCursor(20, 20, 4);
+    tft.print("test1");
+}
 
-/* TODO do dokończenia i przetestowania:
-        -po wykryciu dotyku w handleTouch sprawdzić który ekran jest aktywny i dla którego przeszukiwać akcje ->
-            -> sprawdzić czy koordynaty dla odpowiedniej akcji są w zakresie błędu od któregoś z podanych ? uruchomić akcje odpowiednią akcje : nic
-        -dodać zmiane aktywnego ekranu do akcji
-*/
+void testR()
+{
+    Serial.println("Right");
+}
+void testL()
+{
+    Serial.println("Left");
+}
+void testU()
+{
+    Serial.println("Up");
+}
+void testD()
+{
+    Serial.println("Down");
+}
 
-String activeScreen;
+void test2Screen()
+{
+    activeScreen = &Test2Screen;
+    tft.fillScreen(0);
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(3);
+    tft.setCursor(20, 20, 4);
+    tft.print("test2");
+}
 
 void clockScreen()
 {
+    activeScreen = &ClockScreen;
     tft.fillScreen(0);
     tft.setTextColor(TFT_WHITE);
     tft.setTextSize(3);
@@ -39,6 +78,7 @@ void clockScreen()
 
 void menuScreen()
 {
+    activeScreen = &MenuScreen;
     tft.fillScreen(0);
     tft.setTextColor(TFT_WHITE);
     tft.setTextSize(3);

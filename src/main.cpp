@@ -6,35 +6,33 @@ TFT_eSPI tft = TFT_eSPI();
 
 /*
  touchQueuedAction[0] - type of action: //TODO (potencjalnie zastąpić event group albo task notify z rtos)
-    0 - longPress
+    0 - long press
     1 - swipe
     2 - press
  touchQueuedAction[1] - x coordinates or deviation in case of swipe
  touchQueuedAction[2] - y coordinates or deviation in case of swipe
 */
 short touchQueuedAction[3];
+int prevBrightness;
+int brightness;
+void setBrightness(int value)
+{
+  prevBrightness = brightness;
+  brightness = value;
+  analogWrite(TFT_BL, 2.55 * value);
+}
 
-// TODO Potencjalnie zaimplementować obiekt z detalami o elementach interaktywnych scen.
+// TODO dodanie obsługi zmian w aktualnej scenie
 TaskHandle_t updateDisplay_t;
 void updateDisplay(void *params)
 {
-  menuScreen();
-  for (;;)
-  {
-  }
 }
 
-// TODO zaimplementować jako task z przerwaniami. Przerwania: dotyk, zmiana sceny.
+/* TODO zaimplementować jako task z przerwaniami (wykorzystanie mutex/semafor...).
+        Przerwania: dotyk, zmiana sceny, pop-upy.*/
 void handleTouch(short *touchQueuedAction)
 {
-  if (touchQueuedAction[0] == 0)
-  {
-    menuScreen();
-  }
-  else if (touchQueuedAction[0] == 1)
-  {
-    tft.fillScreen(0);
-  }
+  activeScreen->processTouch(touchQueuedAction);
 }
 
 TaskHandle_t detectTouch_t;
@@ -44,7 +42,7 @@ void detectTouch(void *params)
   u_int16_t x, y, vx, vy, x2, y2, x3, y3, x4, y4;
   std::pair<short, short> touchBufor[43];
   short i = 0;      // touchBufor index
-  short devX, devY; // axis deviation in swipe
+  short devX, devY; // axis deviation for swipe
   for (;;)
   {
     // Check if screen is being touched and no long press detected
@@ -62,12 +60,12 @@ void detectTouch(void *params)
         vy = y - y2 + y3 - y4;
         if (abs(vx) < 250 && abs(vy) < 250)
         {
-          // Add deviation to raw data
+          // Normalize raw data by adding deviation
           x += vx / 2;
           y += vy / 2;
           tft.convertRawXY(&x, &y);
           // Throw warning for conversion error //TODO add proper warn/error handling
-          if (x + y > 1000)
+          if (x < 0 || y < 0 || x > 480 || y > 360)
           {
             Serial.println("Coordinates conversion error");
           }
@@ -80,7 +78,7 @@ void detectTouch(void *params)
       }
       vTaskDelay(7);
     }
-    // If screen is no longer touched or touched for max amount (touchBufor[size] * vTaskDelay(ms)) of time
+    // If screen is no longer touched or touched for max amount of time (touchBufor[size] * vTaskDelay(ms))
     else if (i > 0)
     {
       // Detect long press
@@ -94,8 +92,8 @@ void detectTouch(void *params)
       {
         for (short j = 0; j < 35; j++)
         {
-
-          if (touchBufor[j].first == '\0')
+          // TODO zmienić 999 na jakiś odpowiednik null/undefined
+          if (touchBufor[j].first == 999)
           {
             devX = touchBufor[0].first - touchBufor[j - 1].first;
             devY = touchBufor[0].second - touchBufor[j - 1].second;
@@ -110,7 +108,7 @@ void detectTouch(void *params)
             // Detect press
             else if (i <= 10)
             {
-              touchQueuedAction[0] = 3;
+              touchQueuedAction[0] = 2;
               touchQueuedAction[1] = touchBufor[0].first;
               touchQueuedAction[2] = touchBufor[0].second;
             }
@@ -121,7 +119,7 @@ void detectTouch(void *params)
       // TODO Wywołać przerwanie i podać argumenty do taska
       handleTouch(touchQueuedAction);
       // Clear touchBufor and reset its index
-      std::fill(std::begin(touchBufor), std::end(touchBufor), std::pair<short, short>('\0', '\0'));
+      std::fill(std::begin(touchBufor), std::end(touchBufor), std::pair<short, short>(999, 999));
       i = 0;
       vTaskDelay(500);
     }
@@ -135,13 +133,14 @@ void detectTouch(void *params)
 
 void setup(void)
 {
-  delay(2500);
+  // TODO usunąć delay i printy
+  delay(2500); // do debugowania
   Serial.begin(115200);
   Serial.println("\n\nStarting...");
 
   tft.init();
   tft.setRotation(1);
-  analogWrite(TFT_BL, 100 * 2.55);
+  setBrightness(100);
 
   uint16_t calData[5] = {225, 3765, 200, 3765, 7};
   tft.setTouch(calData);
