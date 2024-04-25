@@ -3,27 +3,36 @@
 
 #include <SPI.h>
 #include <TFT_eSPI.h>
+
 #include <vector>
 #include <map>
 
+//<main>
 extern TFT_eSPI tft;
+extern TFT_eSprite clockSprite;
 extern int prevBrightness;
 extern int brightness;
 void setBrightness(int value);
+extern TaskHandle_t updateDisplay_t;
+extern TaskHandle_t detectTouch_t;
+extern bool testFlag;
 
+//</main>
+
+//<screens>
 class Screen
 {
 private:
-    std::vector<std::pair<short, short>> longPressCoordArray;
-    std::vector<std::pair<short, short>> swipeCoordArray;
-    std::vector<std::pair<short, short>> pressCoordArray;
+    std::vector<std::pair<int, int>> longPressCoordArray;
+    std::vector<std::pair<int, int>> swipeCoordArray;
+    std::vector<std::pair<int, int>> pressCoordArray;
 
     std::vector<void (*)()> longPressActions;
     std::vector<void (*)()> swipeActions;
     std::vector<void (*)()> pressActions;
 
 public:
-    Screen(std::vector<std::pair<short, short>> LPC = {}, std::vector<std::pair<short, short>> SC = {}, std::vector<std::pair<short, short>> PC = {},
+    Screen(std::vector<std::pair<int, int>> LPC = {}, std::vector<std::pair<int, int>> SC = {}, std::vector<std::pair<int, int>> PC = {},
            std::vector<void (*)()> LPA = {}, std::vector<void (*)()> SA = {}, std::vector<void (*)()> PA = {})
     {
         longPressCoordArray = LPC;
@@ -34,18 +43,21 @@ public:
         pressActions = PA;
     }
 
-    void processTouch(short *touchQueuedAction)
+    void processTouch(int *touchQueuedAction)
     {
 
-        std::vector<std::pair<short, short>> coords;
+        std::vector<std::pair<int, int>> coords;
         std::vector<void (*)()> actions;
-        short x, y, devX, devY;
+        int x, y, devX, devY;
         x = touchQueuedAction[1];
         y = touchQueuedAction[2];
 
+        // TODO usunąć printy
+        Serial.println();
         Serial.println(touchQueuedAction[0]);
         Serial.println(x);
         Serial.println(y);
+
         devX = 20;
         devY = 20;
 
@@ -75,6 +87,10 @@ public:
             // Check for whole display action
             if (coords[i].first == -999 && coords[i].second == 999)
             {
+                if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
+                {
+                    vTaskDelete(updateDisplay_t);
+                }
                 actions[i]();
                 break;
             }
@@ -87,6 +103,10 @@ public:
             */
             if (abs(coords[i].first - x) <= devX && abs(coords[i].second - y) <= devY)
             {
+                if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
+                {
+                    vTaskDelete(updateDisplay_t);
+                }
                 actions[i]();
                 break;
             }
@@ -105,5 +125,10 @@ void testR();
 void testL();
 void testU();
 void testD();
+//</screens>
+
+//<time>
+
+//</time>
 
 #endif
