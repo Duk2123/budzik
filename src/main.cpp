@@ -1,4 +1,5 @@
-#include <globals.h>
+#include <main.h>
+#include <screens/screens.h>
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite clockSprite = TFT_eSprite(&tft);
@@ -21,20 +22,20 @@ void setBrightness(int value)
   analogWrite(TFT_BL, 2.55 * value);
 }
 
-// TODO dodanie obsługi zmian w aktualnej scenie
 TaskHandle_t updateDisplay_t;
-void updateDisplay(void *params)
-{
-}
+TaskHandle_t handlePopUp_t;
 
-/* TODO zaimplementować jako task z przerwaniami (wykorzystanie mutex/semafor...).
-        Przerwania: dotyk, zmiana sceny, pop-upy.*/
+SemaphoreHandle_t tftMutex = xSemaphoreCreateMutex();
+
 void handleTouch(int *touchQueuedAction)
 {
-  activeScreen->processTouch(touchQueuedAction);
+  xSemaphoreTake(tftMutex, portMAX_DELAY);
+  {
+    activeScreenElement->processTouch(touchQueuedAction);
+  }
+  xSemaphoreGive(tftMutex);
 }
 
-bool testFlag = false;
 TaskHandle_t detectTouch_t;
 // Task for touch detection, upon detecting touch calls handleTouch function with touch type and coordinates or deviation as arguments.
 void detectTouch(void *params)
@@ -53,39 +54,37 @@ void detectTouch(void *params)
     {
 
       // Touch threshold
-      while (testFlag)
+      xSemaphoreTake(tftMutex, portMAX_DELAY);
       {
-        vTaskDelay(1);
-      }
-      testFlag = true;
-      if (tft.getTouchRawZ() > 200)
-      {
-        // Check for raw data errors
-        tft.getTouchRaw(&x, &y);
-        tft.getTouchRaw(&x2, &y2);
-        tft.getTouchRaw(&x3, &y3);
-        tft.getTouchRaw(&x4, &y4);
-        vx = x - x2 + x3 - x4;
-        vy = y - y2 + y3 - y4;
-        if (abs(vx) < 250 && abs(vy) < 250)
+        if (tft.getTouchRawZ() > 1)
         {
-          // Normalize raw data by adding deviation
-          x += vx / 2;
-          y += vy / 2;
-          tft.convertRawXY(&x, &y);
-          // Throw warning for conversion error //TODO add proper warn/error handling
-          if (x < 0 || y < 0 || x > 480 || y > 360)
+          // Check for raw data errors
+          tft.getTouchRaw(&x, &y);
+          tft.getTouchRaw(&x2, &y2);
+          tft.getTouchRaw(&x3, &y3);
+          tft.getTouchRaw(&x4, &y4);
+          vx = x - x2 + x3 - x4;
+          vy = y - y2 + y3 - y4;
+          if (abs(vx) < 250 && abs(vy) < 250)
           {
-            Serial.println("Coordinates conversion error");
-          }
-          else
-          {
-            touchBufor[i] = {x, y};
-            i++;
+            // Normalize raw data by adding deviation
+            x += vx / 2;
+            y += vy / 2;
+            tft.convertRawXY(&x, &y);
+            // Throw warning for conversion error //TODO add proper warn/error handling
+            if (x < 0 || y < 0 || x > 480 || y > 360)
+            {
+              Serial.println("Coordinates conversion error");
+            }
+            else
+            {
+              touchBufor[i] = {x, y};
+              i++;
+            }
           }
         }
       }
-      testFlag = false;
+      xSemaphoreGive(tftMutex);
 
       vTaskDelay(7);
     }
