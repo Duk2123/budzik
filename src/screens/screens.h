@@ -8,17 +8,17 @@
 class ScreenObject
 {
 private:
-    std::vector<std::pair<int, int>> longPressCoordArray;
-    std::vector<std::pair<int, int>> swipeCoordArray;
-    std::vector<std::pair<int, int>> pressCoordArray;
+    std::vector<std::array<int, 4>> longPressCoordArray;
+    std::vector<std::array<int, 4>> swipeCoordArray;
+    std::vector<std::array<int, 4>> pressCoordArray;
 
-    std::vector<void (*)()> longPressActions;
-    std::vector<void (*)()> swipeActions;
-    std::vector<void (*)()> pressActions;
+    std::vector<void (*)(int *touchQueuedAction)> longPressActions;
+    std::vector<void (*)(int *touchQueuedAction)> swipeActions;
+    std::vector<void (*)(int *touchQueuedAction)> pressActions;
 
 public:
-    ScreenObject(std::vector<std::pair<int, int>> LPC = {}, std::vector<std::pair<int, int>> SC = {}, std::vector<std::pair<int, int>> PC = {},
-                 std::vector<void (*)()> LPA = {}, std::vector<void (*)()> SA = {}, std::vector<void (*)()> PA = {})
+    ScreenObject(std::vector<std::array<int, 4>> LPC = {}, std::vector<std::array<int, 4>> SC = {}, std::vector<std::array<int, 4>> PC = {},
+                 std::vector<void (*)(int *touchQueuedAction)> LPA = {}, std::vector<void (*)(int *touchQueuedAction)> SA = {}, std::vector<void (*)(int *touchQueuedAction)> PA = {})
     {
         longPressCoordArray = LPC;
         swipeCoordArray = SC;
@@ -31,8 +31,8 @@ public:
     void processTouch(int *touchQueuedAction)
     {
 
-        std::vector<std::pair<int, int>> coords;
-        std::vector<void (*)()> actions;
+        std::vector<std::array<int, 4>> coords;
+        std::vector<void (*)(int *touchQueuedAction)> actions;
         int x, y, devX, devY;
         x = touchQueuedAction[1];
         y = touchQueuedAction[2];
@@ -43,8 +43,8 @@ public:
         Serial.println(x);
         Serial.println(y);
 
-        devX = 20;
-        devY = 20;
+        // devX = 20;
+        // devY = 20;
 
         // Select arrays to corresponding touch type
         switch (touchQueuedAction[0])
@@ -57,8 +57,8 @@ public:
             case 1:
                 coords = swipeCoordArray;
                 actions = swipeActions;
-                devX = 480;
-                devY = 360;
+                // devX = 480;
+                // devY = 360;
                 break;
             case 2:
                 coords = pressCoordArray;
@@ -69,12 +69,7 @@ public:
 
         for (int i = 0; i < coords.size(); i++)
         {
-            // Check for whole display action
-            if (coords[i].first == -999 && coords[i].second == 999)
-            {
-                actions[i]();
-                break;
-            }
+
             /* Check touched coordinates or deviation
                 Parameters for deviation:
                     {-540, 0}   Right swipe
@@ -82,9 +77,9 @@ public:
                     {0, 390}    Up swipe
                     {0, -390}   Down swipe
             */
-            if (abs(coords[i].first - x) <= devX && abs(coords[i].second - y) <= devY)
+            if (coords[i][0] < x && x < coords[i][2] && coords[i][1] < y && y < coords[i][3])
             {
-                actions[i]();
+                actions[i](touchQueuedAction);
                 break;
             }
         }
@@ -93,14 +88,11 @@ public:
 
 extern ScreenObject *activeScreenElement;
 
-void displaySleep();
-void menuScreen();
-void clockScreen();
-void test1Screen();
-void test2Screen();
-void testR();
-void testL();
-void testU();
-void testD();
+void displaySleep(int *touchQueuedAction);
+void menuScreen(int *touchQueuedAction);
+void clockScreen(int *touchQueuedAction);
+void test1Screen(int *touchQueuedAction);
+void test2Screen(int *touchQueuedAction);
+void testDirection(int *touchQueuedAction);
 
 #endif

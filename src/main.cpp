@@ -12,7 +12,7 @@ TFT_eSprite clockSprite = TFT_eSprite(&tft);
  touchQueuedAction[1] - x coordinates or deviation in case of swipe
  touchQueuedAction[2] - y coordinates or deviation in case of swipe
 */
-int touchQueuedAction[3];
+int touchQueuedAction[6]; // TODO przerobić na powiadomienia z rtos albo coś innego
 int prevBrightness;
 int brightness;
 void setBrightness(int value)
@@ -101,13 +101,25 @@ void detectTouch(void *params)
       else
       {
         // Detect swipe
-        devX = touchBufor[0].first - touchBufor[i - 1].first;
-        devY = touchBufor[0].second - touchBufor[i - 1].second;
+        devX = 0;
+        devY = 0;
+        for (int j = 0; j < i; j++)
+        {
+          devX += touchBufor[i].second;
+          devY += touchBufor[i].first;
+        }
+        devX *= 1 / i;
+        devY *= 1 / i;
+        devX += touchBufor[0].first - touchBufor[i - 1].first;
+        devY += touchBufor[0].second - touchBufor[i - 1].second;
         if (abs(devX) > 60 || abs(devY) > 30 || abs(devX) + abs(devY) > 67)
         {
           touchQueuedAction[0] = 1;
-          touchQueuedAction[1] = devX;
-          touchQueuedAction[2] = devY;
+          touchQueuedAction[1] = touchBufor[0].first;
+          touchQueuedAction[2] = touchBufor[0].second;
+          touchQueuedAction[3] = -devX;
+          touchQueuedAction[4] = devY;
+          touchQueuedAction[5] = atan2(-devX, devY) * 180 / 3.14159265;
         }
 
         // Detect press
@@ -151,7 +163,7 @@ void setup(void)
   tft.fillScreen(0);
 
   xTaskCreate(detectTouch, "touch", 10024, NULL, 1, &detectTouch_t);
-  menuScreen();
+  menuScreen(NULL);
 
   Serial.println("Running...");
 }

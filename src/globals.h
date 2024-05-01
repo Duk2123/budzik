@@ -3,6 +3,7 @@
 
 #include <SPI.h>
 #include <TFT_eSPI.h>
+#include <math.h>
 
 #include <vector>
 #include <map>

@@ -1,7 +1,7 @@
 #include <main.h>
 #include <screens/screens.h>
 
-ScreenObject ClockScreen({{-999, 999}}, {{0, -390}}, {},
+ScreenObject ClockScreen({{0, 0, 480, 360}}, {{0, -390, 0, 0}}, {},
                          {displaySleep}, {menuScreen}, {});
 
 void updateClock(void *params)
@@ -24,7 +24,7 @@ void updateClock(void *params)
     }
 }
 
-void clockScreen()
+void clockScreen(int *touchQueuedAction)
 {
     if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
     {

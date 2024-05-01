@@ -1,10 +1,10 @@
 #include <main.h>
 #include <screens/screens.h>
 
-ScreenObject MenuScreen({{-999, 999}}, {}, {{110, 210}, {240, 210}, {370, 210}},
+ScreenObject MenuScreen({{0, 0, 480, 360}}, {}, {{90, 190, 130, 230}, {220, 190, 260, 230}, {350, 190, 390, 230}},
                         {displaySleep}, {}, {clockScreen, test1Screen, test2Screen});
 
-void menuScreen()
+void menuScreen(int *touchQueuedAction = NULL)
 {
     if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
     {

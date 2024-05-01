@@ -3,13 +3,13 @@
 
 ScreenObject *activeScreenElement;
 
-ScreenObject Test1Screen({{-999, 999}}, {{0, -390}}, {},
+ScreenObject Test1Screen({{0, 0, 480, 360}}, {{0, -390, 0, 0}}, {},
                          {displaySleep}, {menuScreen}, {});
 
-ScreenObject Test2Screen({{-999, 999}}, {{-540, 0}, {540, 0}, {0, 390}, {0, -390}}, {},
-                         {menuScreen}, {testR, testL, testU, testD}, {});
+ScreenObject Test2Screen({{0, 0, 480, 360}}, {{0, 0, 480, 360}}, {},
+                         {menuScreen}, {testDirection}, {});
 
-void displaySleep()
+void displaySleep(int *touchQueuedAction)
 {
     if (brightness > 0)
     {
@@ -21,7 +21,7 @@ void displaySleep()
     }
 }
 
-void test1Screen()
+void test1Screen(int *touchQueuedAction)
 {
     if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
     {
@@ -35,24 +35,18 @@ void test1Screen()
     tft.print("test1");
 }
 
-void testR()
+void testDirection(int *touchQueuedAction)
 {
-    Serial.println("Right");
-}
-void testL()
-{
-    Serial.println("Left");
-}
-void testU()
-{
-    Serial.println("Up");
-}
-void testD()
-{
-    Serial.println("Down");
+    const int devX = 480;
+    const int devY = 360;
+
+    int x = touchQueuedAction[1];
+    int y = touchQueuedAction[2];
+
+    Serial.printf("x: %d y: %d devx: %d devy: %d deg: %d\n", touchQueuedAction[1], touchQueuedAction[2], touchQueuedAction[3], touchQueuedAction[4], touchQueuedAction[5]);
 }
 
-void test2Screen()
+void test2Screen(int *touchQueuedAction)
 {
     if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
     {
