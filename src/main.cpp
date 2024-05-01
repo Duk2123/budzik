@@ -70,7 +70,7 @@ void handleTouch(void *params)
           touchCurrentAction[2] = firstY;
           touchCurrentAction[3] = -devX;
           touchCurrentAction[4] = devY;
-          touchCurrentAction[5] = atan2(-devX, devY) * 180 / 3.14159265;
+          touchCurrentAction[5] = atan2(-devX, devY) * 180 / M_PI;
         }
         // Detecting long press
         else if (i > 31)
