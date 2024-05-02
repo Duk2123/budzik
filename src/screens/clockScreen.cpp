@@ -1,8 +1,14 @@
 #include <main.h>
 #include <screens/screens.h>
 
-ScreenObject ClockScreen({{-999, 999}}, {{0, -390}}, {},
-                         {displaySleep}, {menuScreen}, {});
+void clockScreenToMenuScreen()
+{
+    if (degToDirection(touchCurrentAction[5]) == 3)
+        menuScreen();
+}
+
+ScreenObject ClockScreen({{0, 0, 480, 360}}, {{0, 0, 480, 360}}, {},
+                         {displaySleep}, {clockScreenToMenuScreen}, {});
 
 void updateClock(void *params)
 {
@@ -26,17 +32,20 @@ void updateClock(void *params)
 
 void clockScreen()
 {
-    if (updateDisplay_t != NULL && eTaskGetState(updateDisplay_t) != 4)
+    if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
-        vTaskDelete(updateDisplay_t);
+        vTaskDelete(updateScreenElement_t);
     }
     activeScreenElement = &ClockScreen;
-    tft.fillScreen(0);
-    delay(100);
-    clockSprite.createSprite(360, 72);
-    clockSprite.setColorDepth(8);
-    clockSprite.setTextColor(TFT_WHITE);
-    clockSprite.setTextSize(10);
-
-    xTaskCreate(updateClock, "updateClock", 2048, NULL, 2, &updateDisplay_t);
+    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    {
+        tft.fillScreen(0);
+        delay(100);
+        clockSprite.createSprite(360, 72);
+        clockSprite.setColorDepth(8);
+        clockSprite.setTextColor(TFT_WHITE);
+        clockSprite.setTextSize(10);
+    }
+    xSemaphoreGive(tftMutex);
+    xTaskCreate(updateClock, "updateClock", 2048, NULL, 2, &updateScreenElement_t);
 }
