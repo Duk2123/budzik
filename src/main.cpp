@@ -1,6 +1,8 @@
 #include <main.h>
 #include <touch.h>
 #include <screens/screens.h>
+#include <time.h>
+#include <network.h>
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite clockSprite = TFT_eSprite(&tft);
@@ -30,7 +32,7 @@ int degToDirection(int degrees)
 }
 
 TaskHandle_t updateScreenElement_t;
-TaskHandle_t handlePopUp_t; // TODO
+TaskHandle_t handlePopUp_t; // TODO ogarnąć mechanike pop upów
 
 SemaphoreHandle_t tftMutex = xSemaphoreCreateMutex();
 
@@ -40,6 +42,10 @@ void setup(void)
   delay(2500); // do debugowania
   Serial.begin(115200);
   Serial.println("\n\nStarting...");
+  setupRtc();
+
+  Serial.println(getRtcTime());
+  Serial.println(getRtcDate());
 
   tft.init();
   tft.setRotation(1);
@@ -50,11 +56,12 @@ void setup(void)
 
   tft.fillScreen(0);
 
-  xTaskCreate(handleTouch, "handleTouch", 2048, NULL, 2, &handleTouch_t);
+  xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
+  xTaskCreate(handleTouch, "handleTouch", 2048, NULL, 3, &handleTouch_t);
   delay(250);
-  xTaskCreate(detectTouch, "detectTouch", 2048, NULL, 2, &detectTouch_t);
+  xTaskCreate(detectTouch, "detectTouch", 2048, NULL, 3, &detectTouch_t);
   delay(250);
-  xTaskCreate(updateDisplay, "detectTouch", 20048, NULL, 1, &updateDisplay_t);
+  xTaskCreate(updateDisplay, "detectTouch", 20048, NULL, 2, &updateDisplay_t); // TODO obciąć pamięć
 
   Serial.println("Running...");
 }

@@ -124,7 +124,6 @@ void detectTouch(void *params)
                 }
             }
             xSemaphoreGive(tftMutex);
-            // TODO spróbować przesunąć wyżej
             // Notify the handleTouch task that there is data available for processing
             if (isTouchProcessing == false)
             {

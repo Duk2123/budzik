@@ -2,7 +2,7 @@
 #define MAIN_H
 
 #ifndef GLOBALS_H
-#include <globals.h>
+#include "globals.h"
 #endif
 
 extern TFT_eSPI tft;

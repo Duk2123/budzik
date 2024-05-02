@@ -2,8 +2,9 @@
 #define SCREENS_H
 
 #ifndef GLOBALS_H
-#include <globals.h>
+#include "globals.h"
 #endif
+
 #ifndef TOUCH_H
 #include <touch.h>
 #endif

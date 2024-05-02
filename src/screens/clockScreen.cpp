@@ -1,32 +1,43 @@
 #include <main.h>
 #include <screens/screens.h>
+#include <time.h>
 
-void clockScreenToMenuScreen()
+void clockScreenHandleSwipe()
 {
     if (degToDirection(touchCurrentAction[5]) == 3)
         menuScreen();
+    else if (degToDirection(touchCurrentAction[5]) == 1)
+    {
+        syncRtcToNtp();
+    }
 }
 
 ScreenObject ClockScreen({{0, 0, 480, 360}}, {{0, 0, 480, 360}}, {},
-                         {displaySleep}, {clockScreenToMenuScreen}, {});
+                         {displaySleep}, {clockScreenHandleSwipe}, {});
 
 void updateClock(void *params)
 {
-    Serial.println("task");
-    int i = 0;
+    int16_t width;
+    String prevTime = "00:00:00";
+    String time;
     for (;;)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        time = getRtcTime();
+        if (time != prevTime)
         {
-            clockSprite.fillSprite(TFT_BLACK);
-            clockSprite.setTextColor(TFT_WHITE);
-            clockSprite.drawString(String(i), 0, 0);
-            clockSprite.pushSprite(60, 144);
-            i++;
+            prevTime = time;
+            xSemaphoreTake(tftMutex, portMAX_DELAY);
+            {
+                clockSprite.fillSprite(TFT_BLACK);
+                clockSprite.setTextColor(TFT_WHITE);
+                width = clockSprite.drawString(String(time), 0, 0); // TODO zmienić font
+                clockSprite.pushSprite((480 - width) / 2, 144);
+            }
+            vTaskDelay(8);
+            xSemaphoreGive(tftMutex);
         }
-        vTaskDelay(7);
-        xSemaphoreGive(tftMutex);
-        vTaskDelay(100);
+        else
+            vTaskDelay(125);
     }
 }
 
@@ -41,11 +52,11 @@ void clockScreen()
     {
         tft.fillScreen(0);
         delay(100);
-        clockSprite.createSprite(360, 72);
+        clockSprite.createSprite(480, 72);
         clockSprite.setColorDepth(8);
         clockSprite.setTextColor(TFT_WHITE);
         clockSprite.setTextSize(10);
     }
     xSemaphoreGive(tftMutex);
-    xTaskCreate(updateClock, "updateClock", 2048, NULL, 2, &updateScreenElement_t);
+    xTaskCreate(updateClock, "updateClock", 2048, NULL, 2, &updateScreenElement_t); // TODO przesunąć to do funkcji przejściowej (clockScreenToMenuScreen)
 }
