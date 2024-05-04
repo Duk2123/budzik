@@ -104,7 +104,6 @@ void detectTouch(void *params)
                         x += vx / 2;
                         y += vy / 2;
                         tft.convertRawXY(&x, &y);
-                        xSemaphoreGive(tftMutex);
                         // Throw warning for conversion error //TODO add proper warn/error handling
                         if (x < 0 || y < 0 || x > 480 || y > 360)
                         {

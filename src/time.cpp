@@ -5,6 +5,7 @@
 TwoWire I2C_DS3231 = TwoWire(0);
 RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+char months[12][20] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 void setupRtc()
 {
@@ -36,8 +37,15 @@ String getRtcDate()
     return String(buffer);
 }
 
-void syncRtcToNtp()
+// Returns a String with the name of the month
+String getMonth()
 {
+    DateTime now = rtc.now();
+    return String(months[now.month() - 1]);
+}
+
+void syncRtcToNtp()
+{ // TODO zrobić taska z automatyczną synchronizacją jeśli różnica między ntp a rtc > 1 min
     if (WiFi.status() == WL_CONNECTED)
     {
         uint64_t epoch = timeClient.getEpochTime();

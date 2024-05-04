@@ -13,6 +13,7 @@ extern RTC_DS3231 rtc;
 void setupRtc();
 String getRtcTime();
 String getRtcDate();
+String getMonth();
 void syncRtcToNtp();
 
 #endif

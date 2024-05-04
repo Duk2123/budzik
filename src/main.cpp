@@ -5,7 +5,6 @@
 #include <network.h>
 
 TFT_eSPI tft = TFT_eSPI();
-TFT_eSprite clockSprite = TFT_eSprite(&tft);
 
 int prevBrightness;
 int brightness;
@@ -57,9 +56,9 @@ void setup(void)
   tft.fillScreen(0);
 
   xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
-  xTaskCreate(handleTouch, "handleTouch", 2048, NULL, 3, &handleTouch_t);
+  xTaskCreate(handleTouch, "handleTouch", 20048, NULL, 3, &handleTouch_t);
   delay(250);
-  xTaskCreate(detectTouch, "detectTouch", 2048, NULL, 3, &detectTouch_t);
+  xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 3, &detectTouch_t);
   delay(250);
   xTaskCreate(updateDisplay, "detectTouch", 20048, NULL, 2, &updateDisplay_t); // TODO obciąć pamięć
 
@@ -67,22 +66,42 @@ void setup(void)
 }
 
 void loop()
-{
-  // if (touchCurrentAction[0] != -1)
-  // {
-  //   if (touchCurrentAction[0] == 1)
-  //   {
-  //     Serial.printf("x: %d y: %d devx: %d devy: %d deg: %d\n", touchCurrentAction[1], touchCurrentAction[2], touchCurrentAction[3], touchCurrentAction[4], touchCurrentAction[5]);
-  //   }
-  //   else
-  //   {
+{ // TODO zrobić taska monitorującego inne taski, do resetowania jak się wysypią
+  Serial.println();
+  if (connectToNetwork_t != NULL)
+  {
+    Serial.println("connectToNetwork_t");
+    Serial.println(eTaskGetState(connectToNetwork_t));
+  }
 
-  //     Serial.printf("type: %d x: %d y: %d\n", touchCurrentAction[0], touchCurrentAction[1], touchCurrentAction[2]);
-  //   }
-  //   touchCurrentAction[0] = -1;
-  // }
-  // else
-  // {
-  //   delay(150);
-  // }
+  if (handleTouch_t != NULL)
+  {
+    Serial.println("handleTouch_t");
+    Serial.println(eTaskGetState(handleTouch_t));
+  }
+
+  if (detectTouch_t != NULL)
+  {
+    Serial.println("detectTouch_t");
+    Serial.println(eTaskGetState(detectTouch_t));
+    if (eTaskGetState(detectTouch_t) == 3)
+    {
+      vTaskDelete(detectTouch_t);
+      xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 3, &detectTouch_t);
+    }
+  }
+
+  if (updateDisplay_t != NULL)
+  {
+    Serial.println("updateDisplay_t");
+    Serial.println(eTaskGetState(updateDisplay_t));
+  }
+
+  if (updateScreenElement_t != NULL)
+  {
+    Serial.println("updateScreenElement_t");
+    Serial.println(eTaskGetState(updateScreenElement_t));
+  }
+
+  delay(1000);
 }

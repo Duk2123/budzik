@@ -6,7 +6,6 @@
 #endif
 
 extern TFT_eSPI tft;
-extern TFT_eSprite clockSprite;
 
 extern int prevBrightness;
 extern int brightness;
