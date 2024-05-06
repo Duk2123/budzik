@@ -13,6 +13,7 @@ void goToMenu()
 {
     if (degToDirection(touchCurrentAction[5]) == 3)
     {
+        detectTouchSuspendCounter = 3;
         menuScreen();
     }
     else
@@ -21,7 +22,7 @@ void goToMenu()
 
 void changeMode()
 {
-    vTaskSuspend(detectTouch_t);
+    detectTouchSuspendCounter = 3;
     if (degToDirection(touchCurrentAction[5]) == 2)
         activeMode = activeMode == 0 ? 1 : activeMode - 1;
     else if (degToDirection(touchCurrentAction[5]) == 4)
@@ -31,10 +32,9 @@ void changeMode()
 
     String time = getRtcTime();
     drawClock(time);
-    vTaskResume(detectTouch_t);
 }
 
-ScreenObject ClockScreen({{0, 0, 480, 360}}, {{0, 0, 480, 160}, {0, 0, 480, 360}}, {},
+ScreenObject ClockScreen({{0, 0, 480, 360}}, {{0, 0, 480, 120}, {0, 0, 480, 360}}, {},
                          {displaySleep}, {goToMenu, changeMode}, {});
 
 void drawClock(String time)
@@ -87,7 +87,7 @@ void updateClock(void *params)
 
 void clockScreen()
 {
-    vTaskSuspend(detectTouch_t);
+    detectTouchSuspendCounter = 3;
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
         vTaskDelete(updateScreenElement_t);
@@ -105,5 +105,4 @@ void clockScreen()
     delay(8);
     xSemaphoreGive(tftMutex);
     xTaskCreate(updateClock, "updateClock", 20048, NULL, 2, &updateScreenElement_t); // TODO pamięć
-    vTaskResume(detectTouch_t);
 }

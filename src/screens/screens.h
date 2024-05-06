@@ -52,7 +52,6 @@ public:
             case 1:
                 coords = swipeCoordArray;
                 actions = swipeActions;
-
                 break;
             case 2:
                 coords = pressCoordArray;

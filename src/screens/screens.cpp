@@ -1,8 +1,6 @@
 #include <main.h>
 #include <screens/screens.h>
 
-
-
 ScreenObject *activeScreenElement;
 
 ScreenObject Test1Screen({{0, 0, 480, 360}}, {{0, 0, 480, 360}}, {},
@@ -13,7 +11,7 @@ ScreenObject Test2Screen({{0, 0, 480, 360}}, {{0, 0, 480, 360}}, {},
 
 void displaySleep()
 {
-    vTaskSuspend(detectTouch_t);
+    detectTouchSuspendCounter = 3;
     if (brightness > 0)
     {
         setBrightness(0);
@@ -22,8 +20,6 @@ void displaySleep()
     {
         setBrightness(prevBrightness);
     }
-    delay(300);
-    vTaskResume(detectTouch_t);
 }
 
 void test1Screen()

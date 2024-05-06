@@ -6,6 +6,7 @@ ScreenObject MenuScreen({{0, 0, 480, 360}}, {}, {{90, 190, 130, 230}, {220, 190,
 
 void menuScreen()
 {
+    detectTouchSuspendCounter = 3;
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
         vTaskDelete(updateScreenElement_t);

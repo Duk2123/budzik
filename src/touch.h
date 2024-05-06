@@ -18,6 +18,7 @@ extern TaskHandle_t handleTouch_t;
 extern TaskHandle_t detectTouch_t;
 
 void handleTouch(void *params);
+extern int detectTouchSuspendCounter;
 void detectTouch(void *params);
 
 #endif

@@ -72,6 +72,8 @@ void handleTouch(void *params)
     }
 }
 
+int detectTouchSuspendCounter = 0;
+
 TaskHandle_t detectTouch_t;
 // Task for touch detection, upon detecting touch sends notification to handleTouch task to process data
 void detectTouch(void *params)
@@ -83,7 +85,7 @@ void detectTouch(void *params)
     {
         // Serial.println("x");
         //  Check if screen is being touched and no long press detected
-        if ((analogRead(8) < 1000))
+        if ((analogRead(8) < 1000) && detectTouchSuspendCounter-- == 0)
         {
 
             // Touch threshold
@@ -135,5 +137,6 @@ void detectTouch(void *params)
         {
             vTaskDelay(150);
         }
+        detectTouchSuspendCounter = detectTouchSuspendCounter < 0 ? 0 : detectTouchSuspendCounter;
     }
 }
