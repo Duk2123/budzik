@@ -11,7 +11,7 @@ ScreenObject Test2Screen({{0, 0, 480, 360}}, {{0, 0, 480, 360}}, {},
 
 void displaySleep()
 {
-    detectTouchSuspendCounter = 3;
+    detectTouchSuspendCounter = 6;
     if (brightness > 0)
     {
         setBrightness(0);
@@ -72,14 +72,33 @@ void test2Screen()
 TaskHandle_t updateDisplay_t;
 void updateDisplay(void *params)
 {
-    menuScreen();
     for (;;)
     {
         if (touchCurrentAction[0] != -1)
         {
-            activeScreenElement->processTouch();
+            if (touchCurrentAction[0] == 0)
+            {
+                detectTouchSuspendCounter = 4;
+                activeScreenElement->processTouch();
+            }
+            else if (touchCurrentAction[0] == 2)
+            {
+                while (isTouchProcessing == true && touchCurrentAction[0] == 2)
+                {
+                    vTaskDelay(8);
+                }
+                if (isTouchProcessing == false && touchCurrentAction[0] == 2)
+                {
+                    activeScreenElement->processTouch();
+                }
+            }
+            else
+            {
+                activeScreenElement->processTouch();
+            }
+
             touchCurrentAction[0] = -1;
         }
-        vTaskDelay(16);
+        vTaskDelay(8);
     }
 }

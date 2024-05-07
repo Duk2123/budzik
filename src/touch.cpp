@@ -32,11 +32,11 @@ void handleTouch(void *params)
         {
             isTouchProcessing = true; // Set flag to stop notifications
             // Processing data from queue
-            xQueuePeek(touchQueue, &(coords), pdMS_TO_TICKS(150));
+            xQueuePeek(touchQueue, &(coords), pdMS_TO_TICKS(128));
             i = 1;
             firstX = coords.x;
             firstY = coords.y;
-            while (xQueueReceive(touchQueue, &(coords), pdMS_TO_TICKS(150)))
+            while (xQueueReceive(touchQueue, &(coords), pdMS_TO_TICKS(128)))
             {
                 i++;
                 devX = firstX - coords.x;
@@ -65,7 +65,7 @@ void handleTouch(void *params)
                     touchCurrentAction[1] = coords.x;
                     touchCurrentAction[2] = coords.y;
                 }
-                vTaskDelay(4);
+                vTaskDelay(8);
             }
         }
         isTouchProcessing = false; // Set flag to turn on notifications
@@ -80,13 +80,15 @@ void detectTouch(void *params)
 {
 
     u_int16_t x, y, vx, vy, x2, y2, x3, y3, x4, y4;
-    int devX, devY; // axis deviation for swipe
+    int devX, devY, i; // axis deviation for swipe
+    i = 0;
     for (;;)
     {
         // Serial.println("x");
         //  Check if screen is being touched and no long press detected
         if ((analogRead(8) < 1000) && detectTouchSuspendCounter-- == 0)
         {
+            i = 0;
 
             // Touch threshold
             xSemaphoreTake(tftMutex, portMAX_DELAY);
@@ -133,10 +135,15 @@ void detectTouch(void *params)
             vTaskDelay(8);
         }
         // Screen was not touched
+        else if (detectTouchSuspendCounter > 0)
+        {
+            vTaskDelay(50);
+        }
         else
         {
-            vTaskDelay(150);
+            vTaskDelay(16 + pow(i++, 2.71828));
         }
+        i = i > 6 ? 6 : i;
         detectTouchSuspendCounter = detectTouchSuspendCounter < 0 ? 0 : detectTouchSuspendCounter;
     }
 }

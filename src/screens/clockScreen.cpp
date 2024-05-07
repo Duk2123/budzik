@@ -13,7 +13,8 @@ void goToMenu()
 {
     if (degToDirection(touchCurrentAction[5]) == 3)
     {
-        detectTouchSuspendCounter = 3;
+        detectTouchSuspendCounter = 4;
+        delay(16);
         menuScreen();
     }
     else
@@ -22,7 +23,7 @@ void goToMenu()
 
 void changeMode()
 {
-    detectTouchSuspendCounter = 3;
+    detectTouchSuspendCounter = 4;
     if (degToDirection(touchCurrentAction[5]) == 2)
         activeMode = activeMode == 0 ? 1 : activeMode - 1;
     else if (degToDirection(touchCurrentAction[5]) == 4)
@@ -87,7 +88,7 @@ void updateClock(void *params)
 
 void clockScreen()
 {
-    detectTouchSuspendCounter = 3;
+    detectTouchSuspendCounter = 4;
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
         vTaskDelete(updateScreenElement_t);

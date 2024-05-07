@@ -17,6 +17,7 @@ extern QueueHandle_t touchQueue;
 extern TaskHandle_t handleTouch_t;
 extern TaskHandle_t detectTouch_t;
 
+extern bool isTouchProcessing;
 void handleTouch(void *params);
 extern int detectTouchSuspendCounter;
 void detectTouch(void *params);

@@ -63,6 +63,7 @@ void setup(void)
   delay(250);
   xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 3, &detectTouch_t);
   delay(250);
+  menuScreen();
   xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 2, &updateDisplay_t); // TODO obciąć pamięć
 
   Serial.println("Running...");
