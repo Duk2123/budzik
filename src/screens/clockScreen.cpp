@@ -15,6 +15,8 @@ void goToMenu()
     {
         detectTouchSuspendCounter = 4;
         delay(16);
+        vTaskDelete(updateScreenElement_t);
+        clockSprite.deleteSprite();
         menuScreen();
     }
     else if (degToDirection(touchCurrentAction[5]) == 1)
