@@ -15,5 +15,6 @@ int degToDirection(int degrees);
 
 extern TaskHandle_t updateScreenElement_t;
 extern SemaphoreHandle_t tftMutex;
+extern TaskHandle_t handlePopup_t;
 
 #endif

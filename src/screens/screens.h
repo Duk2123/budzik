@@ -81,5 +81,6 @@ void test1Screen();
 void test2Screen();
 void testDirection();
 void updateDisplay(void *params);
+void keyboardPopUp(void *params);
 
 #endif

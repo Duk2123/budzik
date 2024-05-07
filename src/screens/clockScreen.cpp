@@ -17,6 +17,11 @@ void goToMenu()
         delay(16);
         menuScreen();
     }
+    else if (degToDirection(touchCurrentAction[5]) == 1)
+    {
+        xTaskCreate(keyboardPopUp, "keyboardPopUp", 20048, NULL, 2, &handlePopup_t); // TODO pamięć
+    }
+
     else
         changeMode();
 }
@@ -98,7 +103,7 @@ void clockScreen()
     {
         tft.fillScreen(0);
         delay(32);
-        clockSprite.createSprite(480, 360);
+        clockSprite.createSprite(480, 360); // TODO zmienic sprite
         clockSprite.setColorDepth(16);
         clockSprite.setTextColor(TFT_WHITE);
         clockSprite.setTextSize(10);

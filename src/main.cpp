@@ -31,7 +31,7 @@ int degToDirection(int degrees)
 }
 
 TaskHandle_t updateScreenElement_t;
-TaskHandle_t handlePopUp_t; // TODO ogarnąć mechanike pop upów
+TaskHandle_t handlePopup_t;
 
 SemaphoreHandle_t tftMutex = xSemaphoreCreateMutex();
 
