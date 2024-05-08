@@ -30,9 +30,9 @@ void menuScreen()
         tft.setCursor(328, 141, 4);
         tft.print("Opcja 3");
 
-        tft.fillRect(90, 190, 40, 40, TFT_RED);
-        tft.fillRect(220, 190, 40, 40, TFT_GREEN);
-        tft.fillRect(350, 190, 40, 40, TFT_BLUE);
+        tft.fillRect(90, 190, 40, 40, hexToColor("FF0000"));
+        tft.fillRect(220, 190, 40, 40, hexToColor("00FF00"));
+        tft.fillRect(350, 190, 40, 40, hexToColor("0000FF"));
     }
     xSemaphoreGive(tftMutex);
 }

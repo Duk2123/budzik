@@ -83,4 +83,6 @@ void testDirection();
 void updateDisplay(void *params);
 void keyboardPopUp(void *params);
 
+void drawKeyboard(coordinates &coords1, coordinates &coords2);
+
 #endif

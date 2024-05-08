@@ -30,6 +30,19 @@ int degToDirection(int degrees)
     return 0; // TODO dodać obsługe błędów
 }
 
+uint16_t hexToColor(String hex)
+{
+  uint8_t r = strtol(hex.substring(0, 2).c_str(), NULL, 16);
+  uint8_t g = strtol(hex.substring(2, 4).c_str(), NULL, 16);
+  uint8_t b = strtol(hex.substring(4, 6).c_str(), NULL, 16);
+
+  uint16_t b5 = b >> 3;
+  uint16_t g6 = g >> 2;
+  uint16_t r5 = r >> 3;
+
+  return (r5 << 11) | (g6 << 5) | b5;
+}
+
 TaskHandle_t updateScreenElement_t;
 TaskHandle_t handlePopup_t;
 

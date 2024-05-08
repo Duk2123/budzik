@@ -1,19 +1,25 @@
 #include <main.h>
 #include <screens/screens.h>
 #include <touch.h>
+#include "screens.h"
 
 TFT_eSprite keySprite = TFT_eSprite(&tft);
 TFT_eSprite spaceKeySprite = TFT_eSprite(&tft);
 TFT_eSprite specialKeySprite = TFT_eSprite(&tft);
 TFT_eSprite specialKeyLargeSprite = TFT_eSprite(&tft);
 TFT_eSprite keyboardBackground = TFT_eSprite(&tft);
+TFT_eSprite keyboardText = TFT_eSprite(&tft);
 
+char *activeKeys;
 char letters[29] = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', ' ', '.'};
+char letters_capitalized[29] = {'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', ' ', '.'};
 char symbols[29] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '@', '#', '$', '_', '&', '-', '+', '(', ')', '*', '"', '\'', ':', ';', '!', '?', ',', ' ', '.'};
 char symbols_alt[29] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '~', '`', '|', '^', '=', '{', '}', '[', ']', '\\', '/', '?', ':', ';', '!', '?', '<', ' ', '>'};
 
 bool isEndCalled = false;
 int buttonPressed = -1;
+
+void drawKeyboard();
 
 void handleKeyPress()
 {
@@ -25,7 +31,7 @@ void handleKeyPress()
         if (coords1.x < touchCurrentAction[1] && touchCurrentAction[1] < coords2.x &&
             coords1.y < touchCurrentAction[2] && touchCurrentAction[2] < coords2.y)
         {
-            Serial.println(letters[i]);
+            Serial.println(activeKeys[i]);
             buttonPressed = i;
             break;
         }
@@ -66,16 +72,49 @@ void handleEnterPress()
 void handleShiftPress()
 {
     Serial.println("Shift");
+    buttonPressed = 29;
+    delay(16);
+    if (activeKeys == letters)
+    {
+        activeKeys = letters_capitalized;
+    }
+    else if (activeKeys == letters_capitalized)
+    {
+        activeKeys = letters;
+    }
+    else if (activeKeys == symbols)
+    {
+        activeKeys = symbols_alt;
+    }
+    else
+    {
+        activeKeys = symbols;
+    }
+
+    drawKeyboard();
 }
 
 void handleBackPress()
 {
     Serial.println("Back");
+    buttonPressed = 30;
 }
 
 void handleModePress()
 {
     Serial.println("Mode");
+    buttonPressed = 31;
+    delay(16);
+    if (activeKeys == letters || activeKeys == letters_capitalized)
+    {
+        activeKeys = symbols;
+    }
+    else
+    {
+        activeKeys = letters;
+    }
+
+    drawKeyboard();
 }
 
 ScreenObject KeyboardPopUp({}, {}, {{4, 216, 68, 256}, {4, 264, 92, 304}, {412, 216, 476, 256}, {388, 264, 476, 304}, {4, 120, 476, 344}},
@@ -83,86 +122,243 @@ ScreenObject KeyboardPopUp({}, {}, {{4, 216, 68, 256}, {4, 264, 92, 304}, {412, 
 
 void drawKey(coordinates coords, char label, bool isPressed = false)
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    if (isPressed)
     {
-        keySprite.fillSprite(TFT_BLUE);
-        keySprite.fillRoundRect(0, 0, 40, 40, 5, TFT_WHITE);
-        keySprite.setCursor(16, 12, 2);
-        keySprite.setTextSize(1);
-        keySprite.setTextColor(TFT_BLACK);
-        keySprite.print(label);
-        keySprite.pushSprite(coords.x, coords.y);
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            keySprite.fillSprite(hexToColor("2C2E34"));
+            keySprite.fillRoundRect(0, 0, 40, 40, 10, hexToColor("5D5E5F"));
+            keySprite.setCursor(16, 12, 2);
+            keySprite.setTextSize(1);
+            keySprite.setTextColor(TFT_BLACK);
+            keySprite.print(label);
+            keySprite.pushSprite(coords.x, coords.y);
+
+            delay(64);
+
+            keySprite.fillSprite(hexToColor("2C2E34"));
+            keySprite.fillRoundRect(0, 0, 40, 40, 10, hexToColor("D9D9D9"));
+            keySprite.setCursor(16, 12, 2);
+            keySprite.setTextSize(1);
+            keySprite.setTextColor(TFT_BLACK);
+            keySprite.print(label);
+            keySprite.pushSprite(coords.x, coords.y);
+
+            delay(8);
+        }
+        xSemaphoreGive(tftMutex);
     }
-    delay(8);
-    xSemaphoreGive(tftMutex);
+    else
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            keySprite.fillSprite(hexToColor("2C2E34"));
+            keySprite.fillRoundRect(0, 0, 40, 40, 10, hexToColor("D9D9D9"));
+            keySprite.setCursor(16, 12, 2);
+            keySprite.setTextSize(1);
+            keySprite.setTextColor(TFT_BLACK);
+            keySprite.print(label);
+            keySprite.pushSprite(coords.x, coords.y);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
 }
 
 void drawSpaceKey(bool isPressed = false)
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    if (isPressed)
     {
-        spaceKeySprite.fillSprite(TFT_BLUE);
-        spaceKeySprite.fillRoundRect(0, 0, 184, 40, 5, TFT_WHITE);
-        spaceKeySprite.pushSprite(148, 264);
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            spaceKeySprite.fillSprite(hexToColor("2C2E34"));
+            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, hexToColor("5D5E5F"));
+            spaceKeySprite.pushSprite(148, 264);
+
+            delay(64);
+
+            spaceKeySprite.fillSprite(hexToColor("2C2E34"));
+            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, hexToColor("D9D9D9"));
+            spaceKeySprite.pushSprite(148, 264);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
     }
-    delay(8);
-    xSemaphoreGive(tftMutex);
+    else
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            spaceKeySprite.fillSprite(hexToColor("2C2E34"));
+            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, hexToColor("D9D9D9"));
+            spaceKeySprite.pushSprite(148, 264);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
 }
 
 void drawShiftKey(bool isPressed = false)
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    String label;
+    if (activeKeys == letters || activeKeys == letters_capitalized)
     {
-        specialKeySprite.fillSprite(TFT_BLUE);
-        specialKeySprite.fillRoundRect(0, 0, 64, 40, 5, TFT_WHITE);
-        specialKeySprite.setCursor(8, 12, 2);
-        specialKeySprite.setTextSize(1);
-        specialKeySprite.setTextColor(TFT_BLACK);
-        specialKeySprite.print("Shift");
-        specialKeySprite.pushSprite(4, 216);
+        label = "Shift";
     }
-    delay(8);
-    xSemaphoreGive(tftMutex);
+    else if (activeKeys == symbols)
+    {
+        label = "=/<";
+    }
+    else
+    {
+        label = "?123";
+    }
+
+    if (isPressed)
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            specialKeySprite.fillSprite(hexToColor("2C2E34"));
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("5D5E5F"));
+            specialKeySprite.setCursor(8, 12, 2);
+            specialKeySprite.setTextSize(1);
+            specialKeySprite.setTextColor(TFT_BLACK);
+            specialKeySprite.print(label);
+            specialKeySprite.pushSprite(4, 216);
+
+            delay(64);
+
+            specialKeySprite.fillSprite(hexToColor("2C2E34"));
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
+            specialKeySprite.setCursor(8, 12, 2);
+            specialKeySprite.setTextSize(1);
+            specialKeySprite.setTextColor(TFT_BLACK);
+            specialKeySprite.print(label);
+            specialKeySprite.pushSprite(4, 216);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
+    else
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            specialKeySprite.fillSprite(hexToColor("2C2E34"));
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
+            specialKeySprite.setCursor(8, 12, 2);
+            specialKeySprite.setTextSize(1);
+            specialKeySprite.setTextColor(TFT_BLACK);
+            specialKeySprite.print(label);
+            specialKeySprite.pushSprite(4, 216);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
 }
 
 void drawModeKey(bool isPressed = false)
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    String label;
+    if (activeKeys == letters || activeKeys == letters_capitalized)
     {
-        specialKeyLargeSprite.fillSprite(TFT_BLUE);
-        specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 5, TFT_WHITE);
-        specialKeyLargeSprite.setCursor(22, 12, 2);
-        specialKeyLargeSprite.setTextSize(1);
-        specialKeyLargeSprite.setTextColor(TFT_BLACK);
-        specialKeyLargeSprite.print("?123");
-        specialKeyLargeSprite.pushSprite(4, 264);
+        label = "?123";
     }
-    delay(8);
-    xSemaphoreGive(tftMutex);
+    else
+    {
+        label = "ABC";
+    }
+
+    if (isPressed)
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
+            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("5D5E5F"));
+            specialKeyLargeSprite.setCursor(22, 12, 2);
+            specialKeyLargeSprite.setTextSize(1);
+            specialKeyLargeSprite.setTextColor(TFT_BLACK);
+            specialKeyLargeSprite.print(label);
+            specialKeyLargeSprite.pushSprite(4, 264);
+
+            delay(64);
+
+            specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
+            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
+            specialKeyLargeSprite.setCursor(22, 12, 2);
+            specialKeyLargeSprite.setTextSize(1);
+            specialKeyLargeSprite.setTextColor(TFT_BLACK);
+            specialKeyLargeSprite.print(label);
+            specialKeyLargeSprite.pushSprite(4, 264);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
+    else
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
+            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
+            specialKeyLargeSprite.setCursor(22, 12, 2);
+            specialKeyLargeSprite.setTextSize(1);
+            specialKeyLargeSprite.setTextColor(TFT_BLACK);
+            specialKeyLargeSprite.print(label);
+            specialKeyLargeSprite.pushSprite(4, 264);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
 }
 
 void drawBackKey(bool isPressed = false)
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    if (isPressed)
     {
-        specialKeySprite.fillSprite(TFT_BLUE);
-        specialKeySprite.fillRoundRect(0, 0, 64, 40, 5, TFT_WHITE);
-        specialKeySprite.setCursor(12, 12, 2);
-        specialKeySprite.setTextSize(1);
-        specialKeySprite.setTextColor(TFT_BLACK);
-        specialKeySprite.print("Back");
-        specialKeySprite.pushSprite(412, 216);
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            specialKeySprite.fillSprite(hexToColor("2C2E34"));
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("5D5E5F"));
+            specialKeySprite.setCursor(12, 12, 2);
+            specialKeySprite.setTextSize(1);
+            specialKeySprite.setTextColor(TFT_BLACK);
+            specialKeySprite.print("Back");
+            specialKeySprite.pushSprite(412, 216);
+
+            delay(64);
+
+            specialKeySprite.fillSprite(hexToColor("2C2E34"));
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
+            specialKeySprite.setCursor(12, 12, 2);
+            specialKeySprite.setTextSize(1);
+            specialKeySprite.setTextColor(TFT_BLACK);
+            specialKeySprite.print("Back");
+            specialKeySprite.pushSprite(412, 216);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
     }
-    delay(8);
-    xSemaphoreGive(tftMutex);
+    else
+    {
+        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        {
+            specialKeySprite.fillSprite(hexToColor("2C2E34"));
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
+            specialKeySprite.setCursor(12, 12, 2);
+            specialKeySprite.setTextSize(1);
+            specialKeySprite.setTextColor(TFT_BLACK);
+            specialKeySprite.print("Back");
+            specialKeySprite.pushSprite(412, 216);
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
+    }
 }
 
 void drawEnterKey(bool isPressed = false)
 {
     xSemaphoreTake(tftMutex, portMAX_DELAY);
     {
-        specialKeyLargeSprite.fillSprite(TFT_BLUE);
-        specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 5, TFT_WHITE);
+        specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
+        specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
         specialKeyLargeSprite.setCursor(24, 12, 2);
         specialKeyLargeSprite.setTextSize(1);
         specialKeyLargeSprite.setTextColor(TFT_BLACK);
@@ -173,35 +369,15 @@ void drawEnterKey(bool isPressed = false)
     xSemaphoreGive(tftMutex);
 }
 
-void keyboardPopUp(void *params)
+void drawKeyboard()
 {
-    if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
-    {
-        vTaskSuspend(updateScreenElement_t);
-    }
-
-    ScreenObject *callingElement = activeScreenElement;
-    activeScreenElement = &KeyboardPopUp;
     coordinates coords1 = {4, 120};
-    coordinates coords2 = {44, 160};
-
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
-    {
-        keySprite.createSprite(40, 40);
-        spaceKeySprite.createSprite(184, 40);
-        specialKeySprite.createSprite(64, 40);
-        specialKeyLargeSprite.createSprite(88, 40);
-        keyboardBackground.createSprite(480, 216);
-        keyboardBackground.fillSprite(TFT_BLUE);
-        keyboardBackground.pushSprite(0, 104);
-    }
-    vTaskDelay(8);
-    xSemaphoreGive(tftMutex);
+    coordinates coords2 = {44, 160}; // TODO przerobić ?
     for (int i = 0; i < 29; i++)
     {
         if (i != 27)
         {
-            drawKey(coords1, letters[i]);
+            drawKey(coords1, activeKeys[i]);
         }
         else
         {
@@ -231,15 +407,84 @@ void keyboardPopUp(void *params)
             coords2 = {332, 304};
         }
     }
-    drawShiftKey();
-    drawModeKey();
-    drawBackKey();
-    drawEnterKey();
+    drawShiftKey(false);
+    drawModeKey(false);
+    drawBackKey(false);
+    drawEnterKey(false);
+}
+
+void keyboardPopUp(void *params)
+{
+    if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
+    {
+        vTaskSuspend(updateScreenElement_t);
+    }
+
+    ScreenObject *callingElement = activeScreenElement;
+    activeScreenElement = &KeyboardPopUp;
+
+    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    {
+        keySprite.createSprite(40, 40);
+        spaceKeySprite.createSprite(184, 40);
+        specialKeySprite.createSprite(64, 40);
+        specialKeyLargeSprite.createSprite(88, 40);
+        keyboardText.createSprite(448, 38);
+
+        keyboardBackground.createSprite(480, 360);
+        keyboardBackground.fillRect(0, 0, 480, 102, hexToColor("000000"));
+        keyboardBackground.fillRect(0, 102, 480, 218, hexToColor("2C2E34"));
+        keyboardBackground.pushSprite(0, 0);
+    }
+    vTaskDelay(8);
+    xSemaphoreGive(tftMutex);
+    activeKeys = letters;
+    drawKeyboard();
 
     while (isEndCalled == false)
     {
+        if (buttonPressed != -1)
+        {
+            if (buttonPressed < 10)
+            {
+                drawKey(coordinates{4 + (48 * buttonPressed), 120}, activeKeys[buttonPressed], true);
+            }
+            else if (buttonPressed < 19)
+            {
+                drawKey(coordinates{28 + (48 * (buttonPressed - 10)), 168}, activeKeys[buttonPressed], true);
+            }
+            else if (buttonPressed < 26)
+            {
+                drawKey(coordinates{76 + (48 * (buttonPressed - 19)), 216}, activeKeys[buttonPressed], true);
+            }
+            else if (buttonPressed == 26)
+            {
+                drawKey(coordinates{100, 264}, activeKeys[buttonPressed], true);
+            }
+            else if (buttonPressed == 27)
+            {
+                drawSpaceKey(true);
+            }
+            else if (buttonPressed == 28)
+            {
+                drawKey(coordinates{340, 264}, activeKeys[buttonPressed], true);
+            }
+            else if (buttonPressed == 29)
+            {
+                drawShiftKey(true);
+            }
+            else if (buttonPressed == 30)
+            {
+                drawBackKey(true);
+            }
+            else if (buttonPressed == 31)
+            {
+                drawModeKey(true);
+            }
+
+            buttonPressed = -1;
+        }
         vTaskDelay(16);
-        // TODO add press effect
     }
     isEndCalled = false;
     activeScreenElement = callingElement;
@@ -251,6 +496,7 @@ void keyboardPopUp(void *params)
         specialKeySprite.deleteSprite();
         specialKeyLargeSprite.deleteSprite();
         keyboardBackground.deleteSprite();
+        keyboardText.deleteSprite();
     }
     vTaskDelay(8);
     xSemaphoreGive(tftMutex);
