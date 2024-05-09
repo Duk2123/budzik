@@ -10,6 +10,9 @@ TFT_eSprite specialKeyLargeSprite = TFT_eSprite(&tft);
 TFT_eSprite keyboardBackground = TFT_eSprite(&tft);
 TFT_eSprite keyboardText = TFT_eSprite(&tft);
 
+String keyboardBuffer;
+String keyboardInput;
+
 char *activeKeys;
 char letters[29] = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', ' ', '.'};
 char letters_capitalized[29] = {'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', ' ', '.'};
@@ -31,7 +34,7 @@ void handleKeyPress()
         if (coords1.x < touchCurrentAction[1] && touchCurrentAction[1] < coords2.x &&
             coords1.y < touchCurrentAction[2] && touchCurrentAction[2] < coords2.y)
         {
-            Serial.println(activeKeys[i]);
+            keyboardBuffer += activeKeys[i];
             buttonPressed = i;
             break;
         }
@@ -65,7 +68,9 @@ void handleKeyPress()
 
 void handleEnterPress()
 {
-    Serial.println("Enter");
+    Serial.println(keyboardBuffer);
+    keyboardInput = keyboardBuffer;
+    keyboardBuffer = "";
     isEndCalled = true;
 }
 
@@ -96,7 +101,13 @@ void handleShiftPress()
 
 void handleBackPress()
 {
-    Serial.println("Back");
+    keyboardBuffer.remove(keyboardBuffer.length() - 1);
+    buttonPressed = 30;
+}
+
+void handleBackHold()
+{
+    keyboardBuffer = "";
     buttonPressed = 30;
 }
 
@@ -117,8 +128,10 @@ void handleModePress()
     drawKeyboard();
 }
 
-ScreenObject KeyboardPopUp({}, {}, {{4, 216, 68, 256}, {4, 264, 92, 304}, {412, 216, 476, 256}, {388, 264, 476, 304}, {4, 120, 476, 344}},
-                           {}, {}, {handleShiftPress, handleModePress, handleBackPress, handleEnterPress, handleKeyPress});
+ScreenObject KeyboardPopUp({
+                               {412, 216, 476, 256},
+                           },
+                           {}, {{4, 216, 68, 256}, {4, 264, 92, 304}, {412, 216, 476, 256}, {388, 264, 476, 304}, {4, 120, 476, 344}}, {handleBackHold}, {}, {handleShiftPress, handleModePress, handleBackPress, handleEnterPress, handleKeyPress});
 
 void drawKey(coordinates coords, char label, bool isPressed = false)
 {
@@ -361,7 +374,7 @@ void drawEnterKey(bool isPressed = false)
         specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
         specialKeyLargeSprite.setCursor(24, 12, 2);
         specialKeyLargeSprite.setTextSize(1);
-        specialKeyLargeSprite.setTextColor(TFT_BLACK);
+        specialKeyLargeSprite.setTextColor(TFT_BLACK); // TODO pozmieniać na hexToColor
         specialKeyLargeSprite.print("Enter");
         specialKeyLargeSprite.pushSprite(388, 264);
     }
@@ -413,6 +426,21 @@ void drawKeyboard()
     drawEnterKey(false);
 }
 
+void drawKeyboardText()
+{
+    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    {
+        keyboardText.fillSprite(hexToColor("000000"));
+        keyboardText.setCursor(0, 0, 4);
+        keyboardText.setTextSize(1);
+        keyboardText.setTextColor(hexToColor("FFFFFF"));
+        keyboardText.print(keyboardBuffer);
+        keyboardText.pushSprite(16, 32);
+    }
+    delay(8);
+    xSemaphoreGive(tftMutex);
+}
+
 void keyboardPopUp(void *params)
 {
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
@@ -443,6 +471,7 @@ void keyboardPopUp(void *params)
 
     while (isEndCalled == false)
     {
+
         if (buttonPressed != -1)
         {
             if (buttonPressed < 10)
@@ -481,9 +510,10 @@ void keyboardPopUp(void *params)
             {
                 drawModeKey(true);
             }
-
+            drawKeyboardText();
             buttonPressed = -1;
         }
+
         vTaskDelay(16);
     }
     isEndCalled = false;

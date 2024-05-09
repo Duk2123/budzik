@@ -81,8 +81,9 @@ void test1Screen();
 void test2Screen();
 void testDirection();
 void updateDisplay(void *params);
-void keyboardPopUp(void *params);
 
-void drawKeyboard(coordinates &coords1, coordinates &coords2);
+void keyboardPopUp(void *params);
+void drawKeyboard();
+extern String keyboardInput;
 
 #endif
