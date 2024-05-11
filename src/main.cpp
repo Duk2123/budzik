@@ -3,6 +3,7 @@
 #include <screens/screens.h>
 #include <time.h>
 #include <network.h>
+#include <climateSensor.h>
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -61,7 +62,7 @@ void setup(void)
 
   tft.init();
   tft.setRotation(1);
-  setBrightness(100);
+  setBrightness(0);
 
   uint16_t calData[5] = {225, 3765, 200, 3765, 7};
   tft.setTouch(calData);
@@ -79,6 +80,10 @@ void setup(void)
   menuScreen();
   xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 2, &updateDisplay_t); // TODO obciąć pamięć
 
+  setupClimateSensor();
+
+  delay(1000);
+  setBrightness(100);
   Serial.println("Running...");
 }
 

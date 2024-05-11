@@ -1,5 +1,4 @@
 #include <network.h>
-// TODO nie działa w hederze naprawić
 
 int offset = 2; // TODO zrobić automatyczną zmiane stref czasowej
 
@@ -22,7 +21,7 @@ void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-    delay(1000);
+    delay(5000);
     timeClient.begin();
     timeClient.update();
     Serial.println("Connected");
