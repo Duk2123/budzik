@@ -9,6 +9,9 @@
 #include <touch.h>
 #endif
 
+#define WHITE hexToColor("FFFFFF")
+#define BLACK hexToColor("000000")
+
 class ScreenObject
 {
 private:

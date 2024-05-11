@@ -32,7 +32,7 @@ void test1Screen()
     xSemaphoreTake(tftMutex, portMAX_DELAY);
     {
         tft.fillScreen(0);
-        tft.setTextColor(TFT_WHITE);
+        tft.setTextColor(WHITE);
         tft.setTextSize(3);
         tft.setCursor(20, 20, 4);
         tft.print("test1");
@@ -61,7 +61,7 @@ void test2Screen()
     xSemaphoreTake(tftMutex, portMAX_DELAY);
     {
         tft.fillScreen(0);
-        tft.setTextColor(TFT_WHITE);
+        tft.setTextColor(WHITE);
         tft.setTextSize(3);
         tft.setCursor(20, 20, 4);
         tft.print("test2");

@@ -15,7 +15,7 @@ void menuScreen()
     xSemaphoreTake(tftMutex, portMAX_DELAY);
     {
         tft.fillScreen(0);
-        tft.setTextColor(TFT_WHITE);
+        tft.setTextColor(WHITE);
         tft.setTextSize(3);
         tft.setCursor(20, 20, 4);
         tft.print("MENU");

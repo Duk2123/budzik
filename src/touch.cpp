@@ -72,6 +72,7 @@ void handleTouch(void *params)
     }
 }
 
+// Suspend for n*50ms
 int detectTouchSuspendCounter = 0;
 
 TaskHandle_t detectTouch_t;

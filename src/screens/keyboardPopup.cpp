@@ -3,6 +3,10 @@
 #include <touch.h>
 #include "screens.h"
 
+#define KEY_COLOR hexToColor("D9D9D9")
+#define KEY_COLOR_ALT hexToColor("5D5E5F")
+#define BG_COLOR hexToColor("2C2E34")
+
 TFT_eSprite keySprite = TFT_eSprite(&tft);
 TFT_eSprite spaceKeySprite = TFT_eSprite(&tft);
 TFT_eSprite specialKeySprite = TFT_eSprite(&tft);
@@ -139,22 +143,16 @@ void drawKey(coordinates coords, char label, bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            keySprite.fillSprite(hexToColor("2C2E34"));
-            keySprite.fillRoundRect(0, 0, 40, 40, 10, hexToColor("5D5E5F"));
-            keySprite.setCursor(16, 12, 2);
-            keySprite.setTextSize(1);
-            keySprite.setTextColor(TFT_BLACK);
-            keySprite.print(label);
+            keySprite.fillSprite(BG_COLOR);
+            keySprite.fillRoundRect(0, 0, 40, 40, 10, KEY_COLOR_ALT);
+            keySprite.drawCentreString(String(label), 20, 13, 2);
             keySprite.pushSprite(coords.x, coords.y);
 
             delay(64);
 
-            keySprite.fillSprite(hexToColor("2C2E34"));
-            keySprite.fillRoundRect(0, 0, 40, 40, 10, hexToColor("D9D9D9"));
-            keySprite.setCursor(16, 12, 2);
-            keySprite.setTextSize(1);
-            keySprite.setTextColor(TFT_BLACK);
-            keySprite.print(label);
+            keySprite.fillSprite(BG_COLOR);
+            keySprite.fillRoundRect(0, 0, 40, 40, 10, KEY_COLOR);
+            keySprite.drawCentreString(String(label), 20, 13, 2);
             keySprite.pushSprite(coords.x, coords.y);
 
             delay(8);
@@ -165,12 +163,9 @@ void drawKey(coordinates coords, char label, bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            keySprite.fillSprite(hexToColor("2C2E34"));
-            keySprite.fillRoundRect(0, 0, 40, 40, 10, hexToColor("D9D9D9"));
-            keySprite.setCursor(16, 12, 2);
-            keySprite.setTextSize(1);
-            keySprite.setTextColor(TFT_BLACK);
-            keySprite.print(label);
+            keySprite.fillSprite(BG_COLOR);
+            keySprite.fillRoundRect(0, 0, 40, 40, 10, KEY_COLOR);
+            keySprite.drawCentreString(String(label), 20, 13, 2);
             keySprite.pushSprite(coords.x, coords.y);
         }
         delay(8);
@@ -184,14 +179,14 @@ void drawSpaceKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            spaceKeySprite.fillSprite(hexToColor("2C2E34"));
-            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, hexToColor("5D5E5F"));
+            spaceKeySprite.fillSprite(BG_COLOR);
+            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, KEY_COLOR_ALT);
             spaceKeySprite.pushSprite(148, 264);
 
             delay(64);
 
-            spaceKeySprite.fillSprite(hexToColor("2C2E34"));
-            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, hexToColor("D9D9D9"));
+            spaceKeySprite.fillSprite(BG_COLOR);
+            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, KEY_COLOR);
             spaceKeySprite.pushSprite(148, 264);
         }
         delay(8);
@@ -201,8 +196,8 @@ void drawSpaceKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            spaceKeySprite.fillSprite(hexToColor("2C2E34"));
-            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, hexToColor("D9D9D9"));
+            spaceKeySprite.fillSprite(BG_COLOR);
+            spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, KEY_COLOR);
             spaceKeySprite.pushSprite(148, 264);
         }
         delay(8);
@@ -230,22 +225,16 @@ void drawShiftKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            specialKeySprite.fillSprite(hexToColor("2C2E34"));
-            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("5D5E5F"));
-            specialKeySprite.setCursor(8, 12, 2);
-            specialKeySprite.setTextSize(1);
-            specialKeySprite.setTextColor(TFT_BLACK);
-            specialKeySprite.print(label);
+            specialKeySprite.fillSprite(BG_COLOR);
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR_ALT);
+            specialKeySprite.drawCentreString(String(label), 32, 13, 2);
             specialKeySprite.pushSprite(4, 216);
 
             delay(64);
 
-            specialKeySprite.fillSprite(hexToColor("2C2E34"));
-            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
-            specialKeySprite.setCursor(8, 12, 2);
-            specialKeySprite.setTextSize(1);
-            specialKeySprite.setTextColor(TFT_BLACK);
-            specialKeySprite.print(label);
+            specialKeySprite.fillSprite(BG_COLOR);
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR);
+            specialKeySprite.drawCentreString(String(label), 32, 13, 2);
             specialKeySprite.pushSprite(4, 216);
         }
         delay(8);
@@ -255,12 +244,9 @@ void drawShiftKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            specialKeySprite.fillSprite(hexToColor("2C2E34"));
-            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
-            specialKeySprite.setCursor(8, 12, 2);
-            specialKeySprite.setTextSize(1);
-            specialKeySprite.setTextColor(TFT_BLACK);
-            specialKeySprite.print(label);
+            specialKeySprite.fillSprite(BG_COLOR);
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR);
+            specialKeySprite.drawCentreString(String(label), 32, 13, 2);
             specialKeySprite.pushSprite(4, 216);
         }
         delay(8);
@@ -284,22 +270,16 @@ void drawModeKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
-            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("5D5E5F"));
-            specialKeyLargeSprite.setCursor(22, 12, 2);
-            specialKeyLargeSprite.setTextSize(1);
-            specialKeyLargeSprite.setTextColor(TFT_BLACK);
-            specialKeyLargeSprite.print(label);
+            specialKeyLargeSprite.fillSprite(BG_COLOR);
+            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR_ALT);
+            specialKeyLargeSprite.drawCentreString(String(label), 44, 13, 2);
             specialKeyLargeSprite.pushSprite(4, 264);
 
             delay(64);
 
-            specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
-            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
-            specialKeyLargeSprite.setCursor(22, 12, 2);
-            specialKeyLargeSprite.setTextSize(1);
-            specialKeyLargeSprite.setTextColor(TFT_BLACK);
-            specialKeyLargeSprite.print(label);
+            specialKeyLargeSprite.fillSprite(BG_COLOR);
+            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR);
+            specialKeyLargeSprite.drawCentreString(String(label), 44, 13, 2);
             specialKeyLargeSprite.pushSprite(4, 264);
         }
         delay(8);
@@ -309,12 +289,9 @@ void drawModeKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
-            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
-            specialKeyLargeSprite.setCursor(22, 12, 2);
-            specialKeyLargeSprite.setTextSize(1);
-            specialKeyLargeSprite.setTextColor(TFT_BLACK);
-            specialKeyLargeSprite.print(label);
+            specialKeyLargeSprite.fillSprite(BG_COLOR);
+            specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR);
+            specialKeyLargeSprite.drawCentreString(String(label), 44, 13, 2);
             specialKeyLargeSprite.pushSprite(4, 264);
         }
         delay(8);
@@ -328,22 +305,16 @@ void drawBackKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            specialKeySprite.fillSprite(hexToColor("2C2E34"));
-            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("5D5E5F"));
-            specialKeySprite.setCursor(12, 12, 2);
-            specialKeySprite.setTextSize(1);
-            specialKeySprite.setTextColor(TFT_BLACK);
-            specialKeySprite.print("Back");
+            specialKeySprite.fillSprite(BG_COLOR);
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR_ALT);
+            specialKeySprite.drawCentreString("<--", 32, 13, 2);
             specialKeySprite.pushSprite(412, 216);
 
             delay(64);
 
-            specialKeySprite.fillSprite(hexToColor("2C2E34"));
-            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
-            specialKeySprite.setCursor(12, 12, 2);
-            specialKeySprite.setTextSize(1);
-            specialKeySprite.setTextColor(TFT_BLACK);
-            specialKeySprite.print("Back");
+            specialKeySprite.fillSprite(BG_COLOR);
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR);
+            specialKeySprite.drawCentreString("<--", 32, 13, 2);
             specialKeySprite.pushSprite(412, 216);
         }
         delay(8);
@@ -353,12 +324,9 @@ void drawBackKey(bool isPressed = false)
     {
         xSemaphoreTake(tftMutex, portMAX_DELAY);
         {
-            specialKeySprite.fillSprite(hexToColor("2C2E34"));
-            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, hexToColor("D9D9D9"));
-            specialKeySprite.setCursor(12, 12, 2);
-            specialKeySprite.setTextSize(1);
-            specialKeySprite.setTextColor(TFT_BLACK);
-            specialKeySprite.print("Back");
+            specialKeySprite.fillSprite(BG_COLOR);
+            specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR);
+            specialKeySprite.drawCentreString("<--", 32, 13, 2);
             specialKeySprite.pushSprite(412, 216);
         }
         delay(8);
@@ -370,12 +338,9 @@ void drawEnterKey(bool isPressed = false)
 {
     xSemaphoreTake(tftMutex, portMAX_DELAY);
     {
-        specialKeyLargeSprite.fillSprite(hexToColor("2C2E34"));
-        specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, hexToColor("D9D9D9"));
-        specialKeyLargeSprite.setCursor(24, 12, 2);
-        specialKeyLargeSprite.setTextSize(1);
-        specialKeyLargeSprite.setTextColor(TFT_BLACK); // TODO pozmieniać na hexToColor
-        specialKeyLargeSprite.print("Enter");
+        specialKeyLargeSprite.fillSprite(BG_COLOR);
+        specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR);
+        specialKeyLargeSprite.drawCentreString("Enter", 44, 13, 2);
         specialKeyLargeSprite.pushSprite(388, 264);
     }
     delay(8);
@@ -430,11 +395,8 @@ void drawKeyboardText()
 {
     xSemaphoreTake(tftMutex, portMAX_DELAY);
     {
-        keyboardText.fillSprite(hexToColor("000000"));
-        keyboardText.setCursor(0, 0, 4);
-        keyboardText.setTextSize(1);
-        keyboardText.setTextColor(hexToColor("FFFFFF"));
-        keyboardText.print(keyboardBuffer);
+        keyboardText.fillSprite(BLACK);
+        keyboardText.drawString(keyboardBuffer, 0, 0, 4);
         keyboardText.pushSprite(16, 32);
     }
     delay(8);
@@ -460,9 +422,21 @@ void keyboardPopUp(void *params)
         keyboardText.createSprite(448, 38);
 
         keyboardBackground.createSprite(480, 360);
-        keyboardBackground.fillRect(0, 0, 480, 102, hexToColor("000000"));
-        keyboardBackground.fillRect(0, 102, 480, 218, hexToColor("2C2E34"));
+        keyboardBackground.fillRect(0, 0, 480, 102, BLACK);
+        keyboardBackground.fillRect(0, 102, 480, 218, BG_COLOR);
         keyboardBackground.pushSprite(0, 0);
+
+        specialKeySprite.setTextSize(1);
+        specialKeySprite.setTextColor(BLACK);
+
+        keyboardText.setTextSize(1);
+        keyboardText.setTextColor(WHITE);
+
+        specialKeyLargeSprite.setTextSize(1);
+        specialKeyLargeSprite.setTextColor(BLACK);
+
+        keySprite.setTextSize(1);
+        keySprite.setTextColor(BLACK);
     }
     vTaskDelay(8);
     xSemaphoreGive(tftMutex);
