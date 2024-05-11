@@ -6,16 +6,20 @@ int offset = 2; // TODO zrobić automatyczną zmiane stref czasowej
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "0.pl.pool.ntp.org", 3600 * offset, 28800000);
 
-const char *ssid = "PLAY_Swiatlowodowy_E36A_2"; // TODO
+const char *ssid = "Netianet"; // TODO
 const char *password = "Na765432";
 
 void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     timeClient.end();
     Serial.println("Disconnected");
-
     xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(1000);
+    }
 }
+
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     delay(1000);
