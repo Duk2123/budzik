@@ -1,8 +1,8 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
-#ifndef GLOBALS_H
-#include "globals.h"
+#ifndef MAIN_H
+#include <main.h>
 #endif
 
 #ifndef TOUCH_H
@@ -80,13 +80,20 @@ extern TaskHandle_t updateDisplay_t;
 void displaySleep();
 void menuScreen();
 void clockScreen();
-void test1Screen();
-void test2Screen();
-void testDirection();
+
 void updateDisplay(void *params);
 
 void keyboardPopUp(void *params);
 void drawKeyboard();
 extern String keyboardInput;
+
+extern TaskHandle_t statusBar_t;
+void statusBar(void *params);
+
+void drawWiFiStatus();
+extern bool statusBarWiFiActive;
+
+void drawStatusBarClock();
+extern bool statusBarClockActive;
 
 #endif

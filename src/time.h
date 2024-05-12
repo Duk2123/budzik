@@ -16,4 +16,7 @@ String getRtcDate();
 String getMonth();
 void syncRtcToNtp();
 
+extern TaskHandle_t autoSyncRtc_t;
+void autoSyncRtc(void *params);
+
 #endif

@@ -49,8 +49,25 @@ void syncRtcToNtp()
     if (WiFi.status() == WL_CONNECTED)
     {
         uint64_t epoch = timeClient.getEpochTime();
-        DateTime dt((epoch));
+        DateTime dt(epoch);
         rtc.adjust(dt);
         Serial.println("Time synced");
+    }
+}
+
+TaskHandle_t autoSyncRtc_t;
+void autoSyncRtc(void *params)
+{
+    vTaskDelay(60000);
+    uint64_t epoch;
+    DateTime dt;
+
+    for (;;)
+    {
+        if (WiFi.status() == WL_CONNECTED && timeClient.isTimeSet())
+        {
+            syncRtcToNtp();
+        }
+        vTaskDelay(1000 * 60 * 60 * 24);
     }
 }

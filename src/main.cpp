@@ -72,15 +72,16 @@ void setup(void)
   WiFi.onEvent(WiFiDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
   WiFi.onEvent(WiFiConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
 
-  xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
-  xTaskCreate(handleTouch, "handleTouch", 20048, NULL, 3, &handleTouch_t);
-  delay(250);
-  xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 3, &detectTouch_t);
-  delay(250);
-  menuScreen();
-  xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 2, &updateDisplay_t); // TODO obciąć pamięć
-
   setupClimateSensor();
+
+  xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
+  xTaskCreate(handleTouch, "handleTouch", 20048, NULL, 4, &handleTouch_t);                //
+  delay(250);                                                                             // TODO poprawić delay
+  xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 4, &detectTouch_t);                //                                                                         //
+  xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 3, &updateDisplay_t);          //                                                                           //
+  xTaskCreate(statusBar, "statusBar", 20048, NULL, 2, &statusBar_t);                      //                                                                         //
+  xTaskCreate(autoSyncRtc, "autoSyncRtc", 2048, NULL, 1, &autoSyncRtc_t);                 //
+  clockScreen();
 
   delay(1000);
   setBrightness(100);
