@@ -405,6 +405,7 @@ void drawKeyboardText()
 
 void keyboardPopUp(void *params)
 {
+    vTaskSuspend(statusBar_t);
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
         vTaskSuspend(updateScreenElement_t);
@@ -508,8 +509,13 @@ void keyboardPopUp(void *params)
     if (updateScreenElement_t != NULL)
     {
         vTaskResume(updateScreenElement_t);
+        vTaskNotifyGiveFromISR(updateScreenElement_t, NULL);
     }
     Serial.println("Keyboard end");
+
+    vTaskResume(statusBar_t);
+    drawWiFiStatus();
+    drawStatusBarClock();
 
     vTaskDelete(NULL);
 }

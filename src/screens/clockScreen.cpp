@@ -138,7 +138,7 @@ void updateClock(void *params)
             drawClock(time);
         }
         else
-            vTaskDelay(activeMode == 1 ? 75 : 1000);
+            vTaskDelay(activeMode == 1 ? 125 : 1000);
     }
 }
 
