@@ -18,7 +18,7 @@ bool setupClimateSensor()
     }
 
     Serial.print("Temperature = ");
-    Serial.print(bme.readTemperature());
+    Serial.print(bme.readTemperature() - 1);
     Serial.println(" °C");
     Serial.print("Pressure = ");
 
