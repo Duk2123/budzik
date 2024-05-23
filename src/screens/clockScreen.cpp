@@ -23,10 +23,15 @@ void goToMenu()
         clockHour.deleteSprite();
         clockDate.deleteSprite();
 
-        statusBarWiFiActive = true;
-        drawWiFiStatus();
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
+        {
+            statusBarWiFiActive = true;
+            statusBarClockActive = true;
+        }
+        delay(8);
+        xSemaphoreGive(tftMutex);
 
-        statusBarClockActive = true;
+        drawWiFiStatus();
         drawStatusBarClock();
 
         delay(8);
@@ -50,18 +55,17 @@ void changeMode()
     String time = getRtcTime();
 
     delay(4);
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         clockBackground.fillSprite(BLACK);
         clockBackground.pushSprite(0, 40);
+        if (activeMode == 0)
+            statusBarWiFiActive = false;
+        else
+            statusBarWiFiActive = true;
     }
     delay(12);
     xSemaphoreGive(tftMutex);
-
-    if (activeMode == 0)
-        statusBarWiFiActive = false;
-    else
-        statusBarWiFiActive = true;
 
     drawWiFiStatus();
     drawClock(time);
@@ -75,7 +79,7 @@ void drawClock(String time)
     String date = getRtcDate();
     char buffer[50];
     int temp;
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         switch (activeMode)
         {
@@ -110,7 +114,7 @@ void drawClock(String time)
             clockDate.setTextSize(1);
             clockDate.drawString(String(buffer), 32, 0, 4);
 
-            sprintf(buffer, "°C %2.0f", round(bme.readTemperature()));
+            sprintf(buffer, "°C %2.0f", round(bme.readTemperature() - 1));
             clockDate.drawString(String(buffer), 306, 0, 4); // TODO zmienic font
 
             sprintf(buffer, "%H %2.0f", round(bme.readHumidity()));
@@ -138,7 +142,7 @@ void updateClock(void *params)
             drawClock(time);
         }
         else
-            vTaskDelay(activeMode == 1 ? 75 : 1000);
+            vTaskDelay(activeMode == 1 ? 125 : 1000);
     }
 }
 
@@ -154,7 +158,7 @@ void clockScreen()
     statusBarClockActive = false;
     drawStatusBarClock();
 
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         clockBackground.createSprite(480, 320);
         clockBackground.fillSprite(BLACK);

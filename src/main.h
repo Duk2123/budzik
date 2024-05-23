@@ -7,6 +7,8 @@
 
 extern TFT_eSPI tft;
 
+String convertSpecialLetters(String text);
+
 extern int prevBrightness;
 extern int brightness;
 void setBrightness(int value);

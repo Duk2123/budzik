@@ -8,7 +8,7 @@ int activePage = 0;
 
 const int elements = 4;
 String buttonLabels[elements] = {"Alarms", "Weather", "WiFi", "Settings"};
-std::array<void (*)(), elements> buttonActions = {};
+std::array<void (*)(), elements> buttonActions = {NULL, weatherScreen};
 // TODO add button icons
 
 void drawMenu();
@@ -37,9 +37,21 @@ void changePage()
     drawMenu();
 }
 
-void button1() {}
-void button2() {}
-void button3() {}
+void button1()
+{
+    if (activePage * 3 < elements)
+        buttonActions[activePage * 3]();
+}
+void button2()
+{
+    if (1 + activePage * 3 < elements)
+        buttonActions[1 + activePage * 3]();
+}
+void button3()
+{
+    if (2 + activePage * 3 < elements)
+        buttonActions[2 + activePage * 3]();
+}
 
 void leftArrow()
 {
@@ -59,7 +71,7 @@ void drawMenu()
 {
     char buffer[50];
     sprintf(buffer, "%d/%d", activePage + 1, elements / 3 + 1);
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         for (int i = activePage * 3; (i < activePage * 3 + 3); i++)
         {
@@ -93,7 +105,7 @@ void menuScreen()
     activePage = 0;
     detectTouchSuspendCounter = 4;
     activeScreenElement = &MenuScreen;
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         menuBackground.createSprite(480, 320);
         menuButton.createSprite(110, 146);

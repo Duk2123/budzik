@@ -141,7 +141,7 @@ void drawKey(coordinates coords, char label, bool isPressed = false)
 {
     if (isPressed)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             keySprite.fillSprite(BG_COLOR);
             keySprite.fillRoundRect(0, 0, 40, 40, 10, KEY_COLOR_ALT);
@@ -161,7 +161,7 @@ void drawKey(coordinates coords, char label, bool isPressed = false)
     }
     else
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             keySprite.fillSprite(BG_COLOR);
             keySprite.fillRoundRect(0, 0, 40, 40, 10, KEY_COLOR);
@@ -177,7 +177,7 @@ void drawSpaceKey(bool isPressed = false)
 {
     if (isPressed)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             spaceKeySprite.fillSprite(BG_COLOR);
             spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, KEY_COLOR_ALT);
@@ -194,7 +194,7 @@ void drawSpaceKey(bool isPressed = false)
     }
     else
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             spaceKeySprite.fillSprite(BG_COLOR);
             spaceKeySprite.fillRoundRect(0, 0, 184, 40, 10, KEY_COLOR);
@@ -223,7 +223,7 @@ void drawShiftKey(bool isPressed = false)
 
     if (isPressed)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             specialKeySprite.fillSprite(BG_COLOR);
             specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR_ALT);
@@ -242,7 +242,7 @@ void drawShiftKey(bool isPressed = false)
     }
     else
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             specialKeySprite.fillSprite(BG_COLOR);
             specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR);
@@ -268,7 +268,7 @@ void drawModeKey(bool isPressed = false)
 
     if (isPressed)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             specialKeyLargeSprite.fillSprite(BG_COLOR);
             specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR_ALT);
@@ -287,7 +287,7 @@ void drawModeKey(bool isPressed = false)
     }
     else
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             specialKeyLargeSprite.fillSprite(BG_COLOR);
             specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR);
@@ -303,7 +303,7 @@ void drawBackKey(bool isPressed = false)
 {
     if (isPressed)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             specialKeySprite.fillSprite(BG_COLOR);
             specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR_ALT);
@@ -322,7 +322,7 @@ void drawBackKey(bool isPressed = false)
     }
     else
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             specialKeySprite.fillSprite(BG_COLOR);
             specialKeySprite.fillRoundRect(0, 0, 64, 40, 10, KEY_COLOR);
@@ -336,7 +336,7 @@ void drawBackKey(bool isPressed = false)
 
 void drawEnterKey(bool isPressed = false)
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         specialKeyLargeSprite.fillSprite(BG_COLOR);
         specialKeyLargeSprite.fillRoundRect(0, 0, 88, 40, 10, KEY_COLOR);
@@ -393,7 +393,7 @@ void drawKeyboard()
 
 void drawKeyboardText()
 {
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         keyboardText.fillSprite(BLACK);
         keyboardText.drawString(keyboardBuffer, 0, 0, 4);
@@ -405,6 +405,7 @@ void drawKeyboardText()
 
 void keyboardPopUp(void *params)
 {
+    vTaskSuspend(statusBar_t);
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
         vTaskSuspend(updateScreenElement_t);
@@ -413,7 +414,7 @@ void keyboardPopUp(void *params)
     ScreenObject *callingElement = activeScreenElement;
     activeScreenElement = &KeyboardPopUp;
 
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         keySprite.createSprite(40, 40);
         spaceKeySprite.createSprite(184, 40);
@@ -493,7 +494,7 @@ void keyboardPopUp(void *params)
     isEndCalled = false;
     activeScreenElement = callingElement;
 
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         keySprite.deleteSprite();
         spaceKeySprite.deleteSprite();
@@ -508,8 +509,13 @@ void keyboardPopUp(void *params)
     if (updateScreenElement_t != NULL)
     {
         vTaskResume(updateScreenElement_t);
+        vTaskNotifyGiveFromISR(updateScreenElement_t, NULL);
     }
     Serial.println("Keyboard end");
+
+    vTaskResume(statusBar_t);
+    drawWiFiStatus();
+    drawStatusBarClock();
 
     vTaskDelete(NULL);
 }

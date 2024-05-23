@@ -6,6 +6,9 @@ TwoWire I2C_BME280 = TwoWire(1);
 Adafruit_BME280 bme;
 bool bmeStatus = false;
 
+/** @brief climate sensor setup
+ * @return true if successful
+ */
 bool setupClimateSensor()
 {
     I2C_BME280.begin(BME280_SDA, BME280_SCL);
@@ -18,7 +21,7 @@ bool setupClimateSensor()
     }
 
     Serial.print("Temperature = ");
-    Serial.print(bme.readTemperature());
+    Serial.print(bme.readTemperature() - 1);
     Serial.println(" °C");
     Serial.print("Pressure = ");
 

@@ -80,6 +80,7 @@ extern TaskHandle_t updateDisplay_t;
 void displaySleep();
 void menuScreen();
 void clockScreen();
+void weatherScreen();
 
 void updateDisplay(void *params);
 

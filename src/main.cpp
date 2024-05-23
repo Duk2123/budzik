@@ -7,8 +7,31 @@
 
 TFT_eSPI tft = TFT_eSPI();
 
+/// @brief converts text special letters to ?
+/// @param text String to convert
+/// @return String
+String convertSpecialLetters(String text) // TODO usunąć po dodaniu czcionek
+{
+  String result;
+  for (int i = 0; i < text.length(); i++)
+  {
+    if (int(text[i]) > 126)
+    {
+      result += '?';
+    }
+    else
+    {
+      result += text[i];
+    }
+  }
+  return result;
+}
+
 int prevBrightness;
 int brightness;
+/** @brief Sets display brightens
+ * @param value brightness % [0,100]
+ */
 void setBrightness(int value)
 {
   prevBrightness = brightness;
@@ -16,6 +39,10 @@ void setBrightness(int value)
   analogWrite(TFT_BL, 2.55 * value);
 }
 
+/** @brief Converts degrees from atan2 to direction
+ * @param degrees int representing degrees [-180,180]
+ * @return int representing directions:  1 - up, 2 - right, 3 - down, 4 - left
+ */
 int degToDirection(int degrees)
 {
   if (abs(degrees) <= 45)
@@ -31,6 +58,10 @@ int degToDirection(int degrees)
     return 0; // TODO dodać obsługe błędów
 }
 
+/** @brief Converts a hex to color
+ * @param hex a String with hex color
+ * @return uint16_t with r5g6b5 formatted color
+ */
 uint16_t hexToColor(String hex)
 {
   uint8_t r = strtol(hex.substring(0, 2).c_str(), NULL, 16);
@@ -48,6 +79,16 @@ TaskHandle_t updateScreenElement_t;
 TaskHandle_t handlePopup_t;
 
 SemaphoreHandle_t tftMutex = xSemaphoreCreateMutex();
+
+TaskHandle_t debug_t;
+void debug(void *params) // TODO usunąć debug / dodać funkcje monitorującą
+{
+  for (;;)
+  {
+    Serial.println(esp_get_free_heap_size());
+    vTaskDelay(10000);
+  }
+}
 
 void setup(void)
 {
@@ -74,13 +115,13 @@ void setup(void)
 
   setupClimateSensor();
 
+  xTaskCreate(debug, "debug", 2048, NULL, 10, &debug_t);                                  // TODO obciąć pamięć
   xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
   xTaskCreate(handleTouch, "handleTouch", 20048, NULL, 4, &handleTouch_t);                //
   delay(250);                                                                             // TODO poprawić delay
-  xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 4, &detectTouch_t);                //                                                                         //
-  xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 3, &updateDisplay_t);          //                                                                           //
-  xTaskCreate(statusBar, "statusBar", 20048, NULL, 2, &statusBar_t);                      //                                                                         //
-  xTaskCreate(autoSyncRtc, "autoSyncRtc", 2048, NULL, 1, &autoSyncRtc_t);                 //
+  xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 5, &detectTouch_t);                //
+  xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 3, &updateDisplay_t);          //
+  xTaskCreate(statusBar, "statusBar", 20048, NULL, 2, &statusBar_t);                      //
   clockScreen();
 
   delay(1000);
