@@ -12,7 +12,7 @@ bool statusBarWiFiActive = true;
 void drawWiFiStatus()
 {
 
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         if (statusBarWiFiActive)
         {
@@ -46,7 +46,7 @@ void drawStatusBarClock()
     String time = getRtcTime();
     time.remove(5, 3);
 
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         if (statusBarClockActive)
         {
@@ -69,7 +69,7 @@ void statusBar(void *params)
     String prevTime = "00:00:00";
     String time;
 
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         statusBarBackground.createSprite(464, 32);
         statusBarWiFi.createSprite(232, 32);

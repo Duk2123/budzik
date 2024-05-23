@@ -71,7 +71,7 @@ void drawMenu()
 {
     char buffer[50];
     sprintf(buffer, "%d/%d", activePage + 1, elements / 3 + 1);
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         for (int i = activePage * 3; (i < activePage * 3 + 3); i++)
         {
@@ -105,7 +105,7 @@ void menuScreen()
     activePage = 0;
     detectTouchSuspendCounter = 4;
     activeScreenElement = &MenuScreen;
-    xSemaphoreTake(tftMutex, portMAX_DELAY);
+    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         menuBackground.createSprite(480, 320);
         menuButton.createSprite(110, 146);

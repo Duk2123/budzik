@@ -7,8 +7,8 @@ WiFiUDP ntpUDP;
 HTTPClient http;
 NTPClient timeClient(ntpUDP, "0.pl.pool.ntp.org", 3600 * offset, 28800000);
 
-const char *ssid = "JAVR"; // TODO
-const char *password = "kebab1212";
+const char *ssid = "PLAY_Swiatlowodowy_E36A_2"; // TODO
+const char *password = "Na765432";
 
 TaskHandle_t WiFiConnectedEvent_t;
 /** @brief Task for WiFi connected event */
@@ -64,17 +64,24 @@ void connectToNetwork(void *params)
     vTaskDelete(NULL);
 }
 
-// Returns String with id, temp, feels_like, pressure, humidity, wind speed "%3d;%3d;%3d;%4d;%2d;%2d"
-String getCurrentWeather(float lat, float lon)
+/**
+ * @brief queries and returns current weather of chosen location
+ * @param lat geographic latitude of chosen location
+ * @param lon geographic longitude of chosen location
+ * @return CurrentWeather
+ */
+CurrentWeather getCurrentWeather(float lat, float lon)
 {
+    CurrentWeather temp;
     JsonDocument doc;
     char buffer[500];
     sprintf(buffer, "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=metric&appid=6c058e95528f27729d1eee3888ce9691", lat, lon);
     String serverPath = String(buffer);
     if (WiFi.status() == WL_CONNECTED)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
+
             http.begin(serverPath.c_str());
             int httpResponseCode = http.GET();
 
@@ -82,71 +89,91 @@ String getCurrentWeather(float lat, float lon)
             {
                 String response = http.getString();
                 deserializeJson(doc, response);
-                sprintf(buffer, "%3d;%3d;%3d;%4d;%2d;%2d",
-                        int(doc["weather"][0]["id"]), int(doc["main"]["temp"]), int(doc["main"]["feels_like"]), int(doc["main"]["pressure"]), int(doc["main"]["humidity"]), int(doc["wind"]["speed"]));
+                temp = {convertSpecialLetters(doc["name"]), int(doc["weather"][0]["id"]),
+                        int(doc["main"]["temp"]),
+                        int(doc["main"]["feels_like"]),
+                        int(doc["main"]["pressure"]),
+                        int(doc["main"]["humidity"]),
+                        int(doc["wind"]["speed"])};
             }
             else
             {
                 Serial.print("Error code: ");
                 Serial.println(httpResponseCode);
+                throw RequestError();
             }
             http.end();
         }
         delay(8);
         xSemaphoreGive(tftMutex);
+        return temp;
     }
     else
     {
-        Serial.println("No connection");
+        throw ConnectionError();
     }
-    return String(buffer);
 }
 
-// Returns a String pop;(dt,temp,id)*9 "%3d;%10d,%3d,%3d..."
-String getForecast(float lat, float lon)
+/**
+ * @brief queries and returns current forecast of chosen location
+ * @param lat geographic latitude of chosen location
+ * @param lon geographic longitude of chosen location
+ * @return CurrentForecast
+ */
+CurrentForecast getForecast(float lat, float lon)
 {
+    CurrentForecast temp;
+    std::vector<int> tempId;
+    std::vector<int> tempTemp;
+    std::vector<int> tempDt;
     JsonDocument doc;
-    char buffer[2250];
-    sprintf(buffer, "https://api.openweathermap.org/data/2.5/forecast?lat=%f&lon=%f&units=metric&appid=6c058e95528f27729d1eee3888ce9691", lat, lon);
+
+    char buffer[500];
+    sprintf(buffer, "https://api.openweathermap.org/data/2.5/forecast?lat=%f&lon=%f&units=metric&cnt=8&appid=6c058e95528f27729d1eee3888ce9691", lat, lon);
     String serverPath = String(buffer);
-    String temp;
     if (WiFi.status() == WL_CONNECTED)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             http.begin(serverPath.c_str());
             int httpResponseCode = http.GET();
-
             if (httpResponseCode > 0)
             {
                 String response = http.getString();
                 deserializeJson(doc, response);
-                sprintf(buffer, "%3d",
-                        float(doc["list"][0]["pop"]) * 100);
-                temp = String(buffer);
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 8; i++)
                 {
-                    sprintf(buffer, ";%10d,%3d,%3d", int(doc["list"][i]["dt"]), int(doc["list"][i]["main"]["temp"]), int(doc["list"][i]["weather"][0]["id"]));
-                    temp += String(buffer);
+                    tempId.push_back(int(doc["list"][i]["weather"][0]["id"]));
+                    tempTemp.push_back(int(doc["list"][i]["main"]["temp"]));
+                    tempDt.push_back(int(doc["list"][i]["dt"]));
                 }
+                temp = {
+                    (int(doc["list"][0]["pop"]) + int(doc["list"][1]["pop"])) / 2, tempId, tempTemp, tempDt};
             }
             else
             {
                 Serial.print("Error code: ");
-                Serial.println(httpResponseCode);
+                Serial.println(httpResponseCode); // TODO error
+                throw RequestError();
             }
             http.end();
         }
         delay(8);
         xSemaphoreGive(tftMutex);
+        return temp;
     }
     else
     {
-        Serial.println("No connection");
+        throw ConnectionError();
     }
-    return temp;
 }
 
+/**
+ * @brief queries and returns coordinate of chosen location
+ * @param city String with name of a city
+ * @param countryCode String with code of a country
+ * @return <lat,lon>
+ */
 std::pair<float, float> getLocalization(String city, String countryCode)
 {
     JsonDocument doc;
@@ -157,7 +184,7 @@ std::pair<float, float> getLocalization(String city, String countryCode)
     String serverPath = String(buffer);
     if (WiFi.status() == WL_CONNECTED)
     {
-        xSemaphoreTake(tftMutex, portMAX_DELAY);
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
             http.begin(serverPath.c_str());
             int httpResponseCode = http.GET();
@@ -174,15 +201,16 @@ std::pair<float, float> getLocalization(String city, String countryCode)
             {
                 Serial.print("Error code: ");
                 Serial.println(httpResponseCode);
+                throw RequestError();
             }
             http.end();
         }
         delay(8);
         xSemaphoreGive(tftMutex);
+        return {lat, lon};
     }
     else
     {
-        Serial.println("No connection");
+        throw ConnectionError();
     }
-    return {lat, lon};
 }

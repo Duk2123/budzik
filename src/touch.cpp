@@ -92,7 +92,7 @@ void detectTouch(void *params)
             i = 0;
 
             // Touch threshold
-            xSemaphoreTake(tftMutex, portMAX_DELAY);
+            xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
             {
                 if (tft.getTouchRawZ() > 1)
                 {

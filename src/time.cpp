@@ -1,6 +1,7 @@
 #include <time.h>
 #include <network.h>
 #include <WiFi.h>
+#include <screens/screens.h>
 
 TwoWire I2C_DS3231 = TwoWire(0);
 RTC_DS3231 rtc;
@@ -60,10 +61,15 @@ void syncRtcToNtp()
 { // TODO zrobić taska z automatyczną synchronizacją jeśli różnica między ntp a rtc > 1 min
     if (WiFi.status() == WL_CONNECTED)
     {
-        uint64_t epoch = timeClient.getEpochTime();
-        DateTime dt(epoch);
-        rtc.adjust(dt);
-        Serial.println("Time synced");
+        xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
+        {
+            uint64_t epoch = timeClient.getEpochTime();
+            DateTime dt(epoch);
+            rtc.adjust(dt);
+            Serial.println("Time synced");
+        }
+        delay(16);
+        xSemaphoreGive(tftMutex);
     }
 }
 
