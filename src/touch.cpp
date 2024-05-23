@@ -20,7 +20,7 @@ QueueHandle_t touchQueue = xQueueCreate(43, sizeof(coordinates));
 bool isTouchProcessing = false;
 
 TaskHandle_t handleTouch_t;
-// Task that reads data send from detectTouch task in queue processes it and updates touchCurrentAction
+/** @brief Task that reads data send from detectTouch task in queue processes it and updates touchCurrentAction*/
 void handleTouch(void *params)
 {
     coordinates coords;
@@ -76,7 +76,7 @@ void handleTouch(void *params)
 int detectTouchSuspendCounter = 0;
 
 TaskHandle_t detectTouch_t;
-// Task for touch detection, upon detecting touch sends notification to handleTouch task to process data
+/** @brief Task for touch detection, upon detecting touch sends notification to handleTouch task to process data*/
 void detectTouch(void *params)
 {
 

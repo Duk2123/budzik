@@ -6,9 +6,15 @@
 #include <climateSensor.h>
 
 TFT_eSPI tft = TFT_eSPI();
+/// @brief converts text special letters to ?
+/// @param text String to convert
+/// @return String
 
 int prevBrightness;
 int brightness;
+/** @brief Sets display brightens
+ * @param value brightness % [0,100]
+ */
 void setBrightness(int value)
 {
   prevBrightness = brightness;
@@ -16,6 +22,10 @@ void setBrightness(int value)
   analogWrite(TFT_BL, 2.55 * value);
 }
 
+/** @brief Converts degrees from atan2 to direction
+ * @param degrees int representing degrees [-180,180]
+ * @return int representing directions:  1 - up, 2 - right, 3 - down, 4 - left
+ */
 int degToDirection(int degrees)
 {
   if (abs(degrees) <= 45)
@@ -31,6 +41,10 @@ int degToDirection(int degrees)
     return 0; // TODO dodać obsługe błędów
 }
 
+/** @brief Converts a hex to color
+ * @param hex a String with hex color
+ * @return uint16_t with r5g6b5 formatted color
+ */
 uint16_t hexToColor(String hex)
 {
   uint8_t r = strtol(hex.substring(0, 2).c_str(), NULL, 16);

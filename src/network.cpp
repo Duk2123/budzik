@@ -11,6 +11,7 @@ const char *ssid = "JAVR"; // TODO
 const char *password = "kebab1212";
 
 TaskHandle_t WiFiConnectedEvent_t;
+/** @brief Task for WiFi connected event */
 void WiFiConnectedEvent(void *params)
 {
     delay(5000);
@@ -24,6 +25,7 @@ void WiFiConnectedEvent(void *params)
     vTaskDelete(NULL);
 }
 
+/** @brief WiFi disconnected event*/
 void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     timeClient.end();
@@ -35,6 +37,7 @@ void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
     }
 }
 
+/** @brief WiFi connected event */
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     while (WiFiConnectedEvent_t != NULL || (WiFiConnectedEvent_t != NULL && eTaskGetState(WiFiConnectedEvent_t) != 4))
@@ -43,6 +46,7 @@ void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 }
 
 TaskHandle_t connectToNetwork_t;
+/** @brief Task for connecting to WiFi*/
 void connectToNetwork(void *params)
 {
     WiFi.begin(ssid, password);

@@ -7,6 +7,7 @@ RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 char months[12][20] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
+/** @brief RTC setup */
 void setupRtc()
 {
     I2C_DS3231.begin(DS3231_SDA, DS3231_SCL);
@@ -19,7 +20,10 @@ void setupRtc()
     Serial.println("RTC setup done");
 }
 
-// Returns a String "hh:mm:ss" with current RTC time
+/**
+ * @brief Returns a String with current RTC time
+ * @return String "hh:mm:ss"
+ */
 String getRtcTime()
 {
     DateTime now = rtc.now();
@@ -28,7 +32,10 @@ String getRtcTime()
     return String(buffer);
 }
 
-// Returns a String "DayOfWeek.DD.MM.YYYY" with current RTC date
+/**
+ * @brief Returns a String with current RTC date
+ * @return String "DayOfWeek.DD.MM.YYYY"
+ */
 String getRtcDate()
 {
     DateTime now = rtc.now();
@@ -37,13 +44,18 @@ String getRtcDate()
     return String(buffer);
 }
 
-// Returns a String with the name of the month
+//
+/**
+ * @brief Returns a String with the name of the month
+ * @return String
+ */
 String getMonth()
 {
     DateTime now = rtc.now();
     return String(months[now.month() - 1]);
 }
 
+/** @brief Synchronizes RTC to time from NTP server */
 void syncRtcToNtp()
 { // TODO zrobić taska z automatyczną synchronizacją jeśli różnica między ntp a rtc > 1 min
     if (WiFi.status() == WL_CONNECTED)
@@ -56,6 +68,7 @@ void syncRtcToNtp()
 }
 
 TaskHandle_t autoSyncRtc_t;
+/** @brief Task for automatic RTC synchronization */
 void autoSyncRtc(void *params)
 {
     vTaskDelay(60000);
