@@ -2,7 +2,7 @@
 #include <touch.h>
 
 /*
- touchQueuedAction[0] - type of action: //TODO (potencjalnie zastąpić event group albo task notify z rtos)
+ touchCurrentAction[0] - type of action:
    -1 - no action pending
     0 - long press
     1 - swipe
@@ -12,9 +12,9 @@
  touchQueuedAction[3]* - x deviation
  touchQueuedAction[4]* - y deviation
  touchQueuedAction[5]* - angle of swipe [-180,180] 0:up, -90:left, 90:right, -+180:down
- * only for swipe
+  **only for swipe
 */
-int touchCurrentAction[6] = {-1, 0, 0, 0, 0, 0}; // TODO przerobić na powiadomienia z rtos albo coś innego
+int touchCurrentAction[6] = {-1, 0, 0, 0, 0, 0};
 
 QueueHandle_t touchQueue = xQueueCreate(43, sizeof(coordinates));
 bool isTouchProcessing = false;

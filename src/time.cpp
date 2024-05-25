@@ -58,7 +58,7 @@ String getMonth()
 
 /** @brief Synchronizes RTC to time from NTP server */
 void syncRtcToNtp()
-{ // TODO zrobić taska z automatyczną synchronizacją jeśli różnica między ntp a rtc > 1 min
+{
     if (WiFi.status() == WL_CONNECTED)
     {
         xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));

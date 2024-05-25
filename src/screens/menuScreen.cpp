@@ -8,7 +8,7 @@ int activePage = 0;
 
 const int elements = 4;
 String buttonLabels[elements] = {"Alarms", "Weather", "WiFi", "Settings"};
-std::array<void (*)(), elements> buttonActions = {NULL, weatherScreen};
+std::array<void (*)(), elements> buttonActions = {NULL, weatherScreen, wifiScreen};
 // TODO add button icons
 
 void drawMenu();

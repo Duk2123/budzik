@@ -39,7 +39,9 @@ void weatherChangePage()
     else if (degToDirection(touchCurrentAction[5]) == 1)
     {
         detectTouchSuspendCounter = 4;
+        vTaskDelete(updateScreenElement_t);
         delay(16);
+
         weatherBackground.deleteSprite();
         weatherLocalization.deleteSprite();
         weatherInfo.deleteSprite();
@@ -73,6 +75,7 @@ void weatherGoToMenu()
     if (degToDirection(touchCurrentAction[5]) == 3)
     {
         detectTouchSuspendCounter = 4;
+        vTaskDelete(updateScreenElement_t);
         delay(16);
 
         weatherBackground.deleteSprite();
@@ -148,54 +151,46 @@ void updateWeather()
 
 void updateWeatherScreen(void *params)
 {
-
     for (;;)
     {
-        if (weatherKeyboardActive)
+        if (weatherKeyboardActive && ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != 0)
         {
-            vTaskDelay(250);
-        }
-        else
-        {
-            if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != 0)
+            weatherKeyboardActive = false;
+            if (keyboardInput != "")
             {
-                weatherKeyboardActive = false;
-                if (keyboardInput != "")
+                xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
                 {
-                    xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
-                    {
-                        weatherBackground.fillSprite(BLACK);
-                        weatherBackground.pushSprite(0, 40);
-                    }
-                    delay(8);
-                    xSemaphoreGive(tftMutex);
-
-                    currentCoords = getLocalization(keyboardInput, "PL");
-                    try
-                    {
-                        currentWeather = getCurrentWeather(currentCoords.first, currentCoords.second);
-                        currentForecast = getForecast(currentCoords.first, currentCoords.second);
-
-                        coordsArray.push_back(currentCoords);
-                        weatherArray.push_back(currentWeather);
-                        localizations.push_back(currentWeather.name);
-                        currentLocalization = localizations.size() - 1;
-
-                        forecastArray.push_back(currentForecast);
-                    }
-                    catch (const std::exception &e)
-                    {
-                        Serial.println(e.what()); // TODO
-                    }
+                    weatherBackground.fillSprite(BLACK);
+                    weatherBackground.pushSprite(0, 40);
                 }
+                delay(8);
+                xSemaphoreGive(tftMutex);
 
-                drawLocalization();
-                drawWeatherInfo();
-                drawWeatherForecast();
-                drawWeatherPages();
+                currentCoords = getLocalization(keyboardInput, "PL");
+                try
+                {
+                    currentWeather = getCurrentWeather(currentCoords.first, currentCoords.second);
+                    currentForecast = getForecast(currentCoords.first, currentCoords.second);
+
+                    coordsArray.push_back(currentCoords);
+                    weatherArray.push_back(currentWeather);
+                    localizations.push_back(currentWeather.name);
+                    currentLocalization = localizations.size() - 1;
+
+                    forecastArray.push_back(currentForecast);
+                }
+                catch (const std::exception &e)
+                {
+                    Serial.println(e.what()); // TODO
+                }
             }
-            vTaskDelay(250);
+
+            drawLocalization();
+            drawWeatherInfo();
+            drawWeatherForecast();
+            drawWeatherPages();
         }
+        vTaskDelay(250);
     }
 }
 

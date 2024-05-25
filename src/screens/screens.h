@@ -97,4 +97,6 @@ extern bool statusBarWiFiActive;
 void drawStatusBarClock();
 extern bool statusBarClockActive;
 
+void wifiScreen();
+
 #endif

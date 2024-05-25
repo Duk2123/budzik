@@ -52,4 +52,7 @@ CurrentWeather getCurrentWeather(float lat, float lon);
 CurrentForecast getForecast(float lat, float lon);
 std::pair<float, float> getLocalization(String city, String countryCode);
 
+extern String networkSSID;
+extern String networkPassword;
+
 #endif

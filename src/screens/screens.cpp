@@ -2,6 +2,8 @@
 
 ScreenObject *activeScreenElement;
 
+// TODO known issue flickering screen that fixes on screen change
+
 void displaySleep()
 {
     detectTouchSuspendCounter = 6;

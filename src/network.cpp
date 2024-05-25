@@ -7,33 +7,39 @@ WiFiUDP ntpUDP;
 HTTPClient http;
 NTPClient timeClient(ntpUDP, "0.pl.pool.ntp.org", 3600 * offset, 28800000);
 
-const char *ssid = "PLAY_Swiatlowodowy_E36A_2"; // TODO
-const char *password = "Na765432";
+String networkSSID;
+String networkPassword;
+
+bool lostConnection = false;
 
 TaskHandle_t WiFiConnectedEvent_t;
 /** @brief Task for WiFi connected event */
 void WiFiConnectedEvent(void *params)
 {
-    delay(5000);
-    timeClient.begin();
-    timeClient.update();
-    Serial.println("Connected");
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(1000);
     }
+    lostConnection = false;
+    timeClient.begin();
+    timeClient.update();
+    Serial.println("Connected");
+    vTaskNotifyGiveFromISR(updateScreenElement_t, NULL);
     vTaskDelete(NULL);
 }
 
 /** @brief WiFi disconnected event*/
 void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-    timeClient.end();
-    Serial.println("Disconnected");
-    xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO obciąć pamięć
-    while (WiFi.status() != WL_CONNECTED)
+    if (!lostConnection)
     {
-        delay(1000);
+        lostConnection = true;
+        int i = 0;
+        timeClient.end();
+        Serial.println("Disconnected");
+        delay(10000);
+        if ((connectToNetwork_t == NULL || (WiFiConnectedEvent_t != NULL && eTaskGetState(WiFiConnectedEvent_t) == 4)) && networkSSID != "")
+            xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO zrobić taska który będzie próbował połączyć się z siecią z którą stracono połączenie
     }
 }
 
@@ -49,18 +55,14 @@ TaskHandle_t connectToNetwork_t;
 /** @brief Task for connecting to WiFi*/
 void connectToNetwork(void *params)
 {
-    WiFi.begin(ssid, password);
-
-    int i = 0;
-
-    while (WiFi.status() != WL_CONNECTED && i < 60)
+    Serial.println("Trying to connect");
+    if (networkSSID != "")
     {
-        vTaskDelay((1000 + pow((i++ - 1), 3)) < 60000 ? (1000 + pow((i++ - 1), 3)) : 60000);
+        Serial.println(networkSSID + " | " + networkPassword);
+        WiFi.begin(networkSSID, networkPassword);
     }
-
-    if (i == 60)
-        Serial.println("Failed to connect");
-
+    else
+        Serial.println("No SSID"); // TODO error
     vTaskDelete(NULL);
 }
 
