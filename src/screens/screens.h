@@ -74,7 +74,7 @@ public:
     }
 };
 
-extern ScreenObject *activeScreenElement;
+extern ScreenObject *ActiveScreenElement;
 extern TaskHandle_t updateDisplay_t;
 
 void displaySleep();

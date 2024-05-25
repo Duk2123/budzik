@@ -310,7 +310,7 @@ void drawWeatherPages()
 void weatherScreen()
 {
     detectTouchSuspendCounter = 4;
-    activeScreenElement = &WeatherScreen;
+    ActiveScreenElement = &WeatherScreen;
     currentLocalization = 0;
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {

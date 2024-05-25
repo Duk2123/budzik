@@ -287,7 +287,7 @@ void wifiScreenUpdate(void *params)
 void wifiScreen()
 {
     detectTouchSuspendCounter = 4;
-    activeScreenElement = &WifiScreen;
+    ActiveScreenElement = &WifiScreen;
 
     if (wifiActivePage == 0)
 

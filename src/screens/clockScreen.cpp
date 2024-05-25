@@ -2,9 +2,9 @@
 #include <time.h>
 #include <climateSensor.h>
 
-TFT_eSprite clockBackground = TFT_eSprite(&tft);
-TFT_eSprite clockHour = TFT_eSprite(&tft);
-TFT_eSprite clockDate = TFT_eSprite(&tft);
+TFT_eSprite ClockBackground = TFT_eSprite(&tft);
+TFT_eSprite ClockHour = TFT_eSprite(&tft);
+TFT_eSprite ClockDate = TFT_eSprite(&tft);
 
 int activeMode = 1;
 
@@ -19,9 +19,9 @@ void goToMenu()
         delay(16);
         vTaskDelete(updateScreenElement_t);
 
-        clockBackground.deleteSprite();
-        clockHour.deleteSprite();
-        clockDate.deleteSprite();
+        ClockBackground.deleteSprite();
+        ClockHour.deleteSprite();
+        ClockDate.deleteSprite();
 
         xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
         {
@@ -57,8 +57,8 @@ void changeMode()
     delay(4);
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
-        clockBackground.fillSprite(BLACK);
-        clockBackground.pushSprite(0, 40);
+        ClockBackground.fillSprite(BLACK);
+        ClockBackground.pushSprite(0, 40);
         if (activeMode == 0)
             statusBarWiFiActive = false;
         else
@@ -84,42 +84,42 @@ void drawClock(String time)
         switch (activeMode)
         {
         case 0:
-            clockHour.fillSprite(BLACK);
+            ClockHour.fillSprite(BLACK);
             time.remove(5, 3);
-            clockHour.setTextSize(3);
-            clockHour.drawCentreString(time, 240, 0, 7); // TODO zmienić font
-            clockHour.pushSprite(0, 88);
+            ClockHour.setTextSize(3);
+            ClockHour.drawCentreString(time, 240, 0, 7); // TODO zmienić font
+            ClockHour.pushSprite(0, 88);
             break;
         case 1:
-            clockHour.fillSprite(BLACK);
-            clockHour.setTextSize(1);
-            clockHour.drawCentreString(time, 240, 34, 8);
-            clockHour.pushSprite(0, 88);
+            ClockHour.fillSprite(BLACK);
+            ClockHour.setTextSize(1);
+            ClockHour.drawCentreString(time, 240, 34, 8);
+            ClockHour.pushSprite(0, 88);
 
             sprintf(buffer, "%s, %s %s %s", date.substring(0, date.indexOf(".")), date.substring(date.indexOf(".") + 1, date.indexOf(".") + 3), getMonth(), date.substring(date.indexOf(".") + 7, date.indexOf(".") + 11));
-            clockDate.fillSprite(BLACK);
-            clockDate.setTextSize(1);
-            clockDate.drawCentreString(String(buffer), 240, 0, 4);
-            clockDate.pushSprite(0, 232);
+            ClockDate.fillSprite(BLACK);
+            ClockDate.setTextSize(1);
+            ClockDate.drawCentreString(String(buffer), 240, 0, 4);
+            ClockDate.pushSprite(0, 232);
             break;
         case 2:
-            clockHour.fillSprite(BLACK);
-            clockHour.setTextSize(3);
+            ClockHour.fillSprite(BLACK);
+            ClockHour.setTextSize(3);
             time.remove(5, 3);
-            clockHour.drawCentreString(time, 240, 16, 6);
-            clockHour.pushSprite(0, 88);
+            ClockHour.drawCentreString(time, 240, 16, 6);
+            ClockHour.pushSprite(0, 88);
 
             sprintf(buffer, "%s, %s %s", date.substring(0, 3), date.substring(date.indexOf(".") + 1, date.indexOf(".") + 3), getMonth());
-            clockDate.fillSprite(BLACK);
-            clockDate.setTextSize(1);
-            clockDate.drawString(String(buffer), 32, 0, 4);
+            ClockDate.fillSprite(BLACK);
+            ClockDate.setTextSize(1);
+            ClockDate.drawString(String(buffer), 32, 0, 4);
 
             sprintf(buffer, "°C %2.0f", round(bme.readTemperature() - 1));
-            clockDate.drawString(String(buffer), 306, 0, 4); // TODO zmienic font
+            ClockDate.drawString(String(buffer), 306, 0, 4); // TODO zmienic font
 
             sprintf(buffer, "%H %2.0f", round(bme.readHumidity()));
-            clockDate.drawString(String(buffer), 381, 0, 4); // TODO zmienic font
-            clockDate.pushSprite(0, 248);
+            ClockDate.drawString(String(buffer), 381, 0, 4); // TODO zmienic font
+            ClockDate.pushSprite(0, 248);
             break;
         default:
             break;
@@ -149,7 +149,7 @@ void updateClock(void *params)
 void clockScreen()
 {
     detectTouchSuspendCounter = 4;
-    activeScreenElement = &ClockScreen;
+    ActiveScreenElement = &ClockScreen;
 
     if (activeMode == 0)
         statusBarWiFiActive = false;
@@ -160,15 +160,15 @@ void clockScreen()
 
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
-        clockBackground.createSprite(480, 320);
-        clockBackground.fillSprite(BLACK);
-        clockBackground.pushSprite(0, 40);
+        ClockBackground.createSprite(480, 320);
+        ClockBackground.fillSprite(BLACK);
+        ClockBackground.pushSprite(0, 40);
 
-        clockHour.createSprite(480, 144);
-        clockDate.createSprite(480, 36);
+        ClockHour.createSprite(480, 144);
+        ClockDate.createSprite(480, 36);
 
-        clockHour.setTextColor(WHITE);
-        clockDate.setTextColor(WHITE);
+        ClockHour.setTextColor(WHITE);
+        ClockDate.setTextColor(WHITE);
     }
     delay(8);
     xSemaphoreGive(tftMutex);

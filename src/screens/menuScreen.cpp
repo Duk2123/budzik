@@ -1,8 +1,8 @@
 #include <screens/screens.h>
 
-TFT_eSprite menuBackground = TFT_eSprite(&tft);
-TFT_eSprite menuButton = TFT_eSprite(&tft);
-TFT_eSprite menuPages = TFT_eSprite(&tft);
+TFT_eSprite MenuBackground = TFT_eSprite(&tft);
+TFT_eSprite MenuButton = TFT_eSprite(&tft);
+TFT_eSprite MenuPages = TFT_eSprite(&tft);
 
 int activePage = 0;
 
@@ -25,9 +25,9 @@ void changePage()
     {
         detectTouchSuspendCounter = 4;
         delay(16);
-        menuBackground.deleteSprite();
-        menuButton.deleteSprite();
-        menuPages.deleteSprite();
+        MenuBackground.deleteSprite();
+        MenuButton.deleteSprite();
+        MenuPages.deleteSprite();
         delay(8);
         clockScreen();
         return;
@@ -77,24 +77,24 @@ void drawMenu()
         {
             if (i < elements)
             {
-                menuButton.fillSprite(BLACK);
-                menuButton.fillRect(0, 0, 110, 110, hexToColor("D9D9D9")); // TODO zmienić na rysowanie ikon
-                menuButton.drawCentreString(buttonLabels[i], 55, 118, 4);
-                menuButton.pushSprite(32 + (i % 3) * 153, 86);
+                MenuButton.fillSprite(BLACK);
+                MenuButton.fillRect(0, 0, 110, 110, hexToColor("D9D9D9")); // TODO zmienić na rysowanie ikon
+                MenuButton.drawCentreString(buttonLabels[i], 55, 118, 4);
+                MenuButton.pushSprite(32 + (i % 3) * 153, 86);
             }
             else
             {
-                menuButton.fillSprite(BLACK);
-                menuButton.pushSprite(32 + (i % 3) * 153, 86);
+                MenuButton.fillSprite(BLACK);
+                MenuButton.pushSprite(32 + (i % 3) * 153, 86);
             }
         }
-        menuPages.fillSprite(BLACK);
-        menuPages.setTextSize(2);
-        menuPages.drawCentreString("<-", 20, 0, 4);
-        menuPages.drawCentreString("->", 268, 0, 4);
-        menuPages.setTextSize(1);
-        menuPages.drawCentreString(String(buffer), 144, 14, 4);
-        menuPages.pushSprite(96, 256);
+        MenuPages.fillSprite(BLACK);
+        MenuPages.setTextSize(2);
+        MenuPages.drawCentreString("<-", 20, 0, 4);
+        MenuPages.drawCentreString("->", 268, 0, 4);
+        MenuPages.setTextSize(1);
+        MenuPages.drawCentreString(String(buffer), 144, 14, 4);
+        MenuPages.pushSprite(96, 256);
     }
     delay(8);
     xSemaphoreGive(tftMutex);
@@ -104,19 +104,19 @@ void menuScreen()
 {
     activePage = 0;
     detectTouchSuspendCounter = 4;
-    activeScreenElement = &MenuScreen;
+    ActiveScreenElement = &MenuScreen;
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
-        menuBackground.createSprite(480, 320);
-        menuButton.createSprite(110, 146);
-        menuPages.createSprite(288, 52);
+        MenuBackground.createSprite(480, 320);
+        MenuButton.createSprite(110, 146);
+        MenuPages.createSprite(288, 52);
 
-        menuBackground.fillScreen(BLACK);
-        menuBackground.pushSprite(0, 40);
+        MenuBackground.fillScreen(BLACK);
+        MenuBackground.pushSprite(0, 40);
 
-        menuButton.setTextColor(WHITE);
+        MenuButton.setTextColor(WHITE);
 
-        menuPages.setTextColor(WHITE);
+        MenuPages.setTextColor(WHITE);
     }
     delay(8);
     xSemaphoreGive(tftMutex);

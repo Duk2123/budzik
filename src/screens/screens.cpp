@@ -1,6 +1,6 @@
 #include <screens/screens.h>
 
-ScreenObject *activeScreenElement;
+ScreenObject *ActiveScreenElement;
 
 // TODO known issue flickering screen that fixes on screen change
 
@@ -27,7 +27,7 @@ void updateDisplay(void *params)
             if (touchCurrentAction[0] == 0)
             {
                 detectTouchSuspendCounter = 4;
-                activeScreenElement->processTouch();
+                ActiveScreenElement->processTouch();
             }
             else if (touchCurrentAction[0] == 2)
             {
@@ -37,12 +37,12 @@ void updateDisplay(void *params)
                 }
                 if (isTouchProcessing == false && touchCurrentAction[0] == 2)
                 {
-                    activeScreenElement->processTouch();
+                    ActiveScreenElement->processTouch();
                 }
             }
             else
             {
-                activeScreenElement->processTouch();
+                ActiveScreenElement->processTouch();
             }
 
             touchCurrentAction[0] = -1;
