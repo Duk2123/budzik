@@ -1,9 +1,9 @@
 #include <main.h>
 #include <touch.h>
 #include <screens/screens.h>
-#include <time.h>
 #include <network.h>
 #include <climateSensor.h>
+#include <time.h>
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -140,6 +140,14 @@ void setup(void)
   delay(2500);
   setBrightness(100);
   Serial.println("Running...");
+
+  UserAlarm test1("19:15", {false, true, false, false, false, true, false});
+  // Alarm test2("02:00", true, {false, true, false, false, false, false, false});
+
+  Serial.println(test1.timeUntilAlarm());
+  test1.activateAlarm();
+  Serial.println(test1.timeUntilAlarm());
+  // Serial.println(test2.timeUntilAlarm());
 }
 
 void loop()
