@@ -99,4 +99,6 @@ extern bool statusBarClockActive;
 
 void wifiScreen();
 
+void alarmsScreen();
+
 #endif

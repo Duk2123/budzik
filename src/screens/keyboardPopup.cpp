@@ -439,7 +439,7 @@ void keyboardPopUp(void *params)
         KeySprite.setTextSize(1);
         KeySprite.setTextColor(BLACK);
     }
-    vTaskDelay(8);
+    vTaskDelay(32);
     xSemaphoreGive(tftMutex);
     activeKeys = letters;
     drawKeyboard();

@@ -28,7 +28,7 @@ void goToMenu()
             statusBarWiFiActive = true;
             statusBarClockActive = true;
         }
-        delay(8);
+        delay(32);
         xSemaphoreGive(tftMutex);
 
         drawWiFiStatus();

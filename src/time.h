@@ -19,4 +19,6 @@ void syncRtcToNtp();
 extern TaskHandle_t autoSyncRtc_t;
 void autoSyncRtc(void *params);
 
+extern char daysOfTheWeek[7][12];
+
 #endif
