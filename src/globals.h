@@ -8,6 +8,7 @@
 #include <WiFiUdp.h>
 #include <NTPClient.h>
 
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <queue>
