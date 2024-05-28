@@ -252,7 +252,7 @@ void drawRoomInfo()
         roomInfo.drawCentreString("Ground level", 378, 16, 4);
 
         roomInfo.setTextSize(2);
-        roomInfo.drawCentreString(String(int(round(bme.readTemperature() - 1))), 70, 64, 4);
+        roomInfo.drawCentreString(String(int(round(bme.readTemperature()))), 70, 64, 4);
         roomInfo.drawCentreString(String(int(round(bme.readHumidity()))), 224, 64, 4);
         roomInfo.drawCentreString(String(int(bme.readPressure() / 100)), 378, 64, 4);
 
