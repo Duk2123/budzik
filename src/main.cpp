@@ -103,6 +103,29 @@ void debug(void *params) // TODO usunąć debug / dodać funkcje monitorującą
   }
 }
 
+std::vector<UserAlarm> alarms = {};
+
+TaskHandle_t alarmInterrupt_t;
+void alarmInterrupt(void *params)
+{
+  String time = "00:00";
+  for (;;)
+  {
+    if (time != getRtcTime().substring(0, 5))
+    {
+      time = getRtcTime().substring(0, 5);
+      for (int i = 0; i < alarms.size(); i++)
+      {
+        if (alarms[i].isActive() && alarms[i].timeUntilAlarm() == "0 minutes")
+        {
+          alarms[i].activateAlarm();
+        }
+      }
+    }
+    vTaskDelay(20000);
+  }
+}
+
 void setup(void)
 {
   // TODO usunąć delay i printy
@@ -135,19 +158,12 @@ void setup(void)
   xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 3, &updateDisplay_t); // TODO obciąć pamięć
   xTaskCreate(statusBar, "statusBar", 20048, NULL, 2, &statusBar_t);             // TODO obciąć pamięć
   xTaskCreate(autoSyncRtc, "autoSyncRtc(", 4096, NULL, 1, &autoSyncRtc_t);       // TODO obciąć pamięć
+  xTaskCreate(alarmInterrupt, "alarmInterrupt", 20048, NULL, 6, &alarmInterrupt_t);
   clockScreen();
 
   delay(2500);
   setBrightness(100);
   Serial.println("Running...");
-
-  UserAlarm test1("19:15", {false, true, false, false, false, true, false});
-  // Alarm test2("02:00", true, {false, true, false, false, false, false, false});
-
-  Serial.println(test1.timeUntilAlarm());
-  test1.activateAlarm();
-  Serial.println(test1.timeUntilAlarm());
-  // Serial.println(test2.timeUntilAlarm());
 }
 
 void loop()

@@ -8,7 +8,7 @@ int activePage = 0;
 
 const int elements = 4;
 String buttonLabels[elements] = {"Alarms", "Weather", "WiFi", "Settings"};
-std::array<void (*)(), elements> buttonActions = {NULL, weatherScreen, wifiScreen};
+std::array<void (*)(), elements> buttonActions = {alarmsScreen, weatherScreen, wifiScreen};
 // TODO add button icons
 
 void drawMenu();
@@ -115,7 +115,6 @@ void menuScreen()
         MenuBackground.pushSprite(0, 40);
 
         MenuButton.setTextColor(WHITE);
-
         MenuPages.setTextColor(WHITE);
     }
     delay(8);
