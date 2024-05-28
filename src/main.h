@@ -28,7 +28,7 @@ private:
     int alarmHours;   // 0-24
     int alarmMinutes; // 0-60
     int alarmDay;     // 0-6
-    bool isRepeating;
+    bool isRepeating = false;
     std::array<bool, 7> repeatOnDayOfWeek; // Index 0 - Sunday ... 6 - Saturday
 
 public:
@@ -77,13 +77,15 @@ public:
     bool toggleAlarm()
     {
         if (enabled)
-        {
             enabled = false;
-        }
         else
-        {
             enabled = true;
-        }
+
+        return enabled;
+    }
+
+    bool isActive()
+    {
         return enabled;
     }
 
@@ -129,6 +131,8 @@ public:
     /// @brief Activates alarm
     void activateAlarm()
     {
+        // TODO add actual alarm action here
+        Serial.println("Activating alarm");
         if (isRepeating)
         {
             for (int i = alarmDay + 1; i <= i + 7; i++)
@@ -152,6 +156,35 @@ public:
         sprintf(buffer, "%02d:%02d", alarmHours, alarmMinutes);
         return String(buffer);
     }
+
+    /// @brief Returns occurrences the alarm
+    /// @return  String
+    String getOccurrences()
+    {
+        if (isRepeating)
+        {
+            if (std::all_of(repeatOnDayOfWeek.begin(), repeatOnDayOfWeek.end(), [](bool x)
+                            { return x; }))
+                return "Daily";
+            else if (std::all_of(repeatOnDayOfWeek.begin() + 1, repeatOnDayOfWeek.end() - 1, [](bool x)
+                                 { return x; }) &&
+                     repeatOnDayOfWeek[0] == false && repeatOnDayOfWeek[6] == false)
+                return "Mon to Fri";
+            else
+            {
+                String temp;
+                for (int i = 0; i < 7; i++)
+                {
+                    if (repeatOnDayOfWeek[i])
+                        temp += String(daysOfTheWeek[i]).substring(0, 2) + " ";
+                }
+                return temp;
+            }
+        }
+        return "Once";
+    }
 };
+
+extern std::vector<UserAlarm> alarms;
 
 #endif
