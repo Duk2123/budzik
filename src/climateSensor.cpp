@@ -19,16 +19,9 @@ bool setupClimateSensor()
         Serial.println("Could not find a valid BME280 sensor"); // TODO error handling
         return false;
     }
-    bme.setTemperatureCompensation(-0.62);
-    bme.setSampling(Adafruit_BME280::MODE_NORMAL,
-                    Adafruit_BME280::SAMPLING_X4, // temperature
-                    Adafruit_BME280::SAMPLING_X8, // pressure
-                    Adafruit_BME280::SAMPLING_X2, // humidity
-                    Adafruit_BME280::FILTER_X16,
-                    Adafruit_BME280::STANDBY_MS_0_5);
 
     Serial.print("Temperature = ");
-    Serial.print(bme.readTemperature());
+    Serial.print(bme.readTemperature() - 1);
     Serial.println(" °C");
     Serial.print("Pressure = ");
 

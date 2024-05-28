@@ -114,7 +114,7 @@ void drawClock(String time)
             ClockDate.setTextSize(1);
             ClockDate.drawString(String(buffer), 32, 0, 4);
 
-            sprintf(buffer, "°C %2.0f", round(bme.readTemperature()));
+            sprintf(buffer, "°C %2.0f", round(bme.readTemperature() - 1));
             ClockDate.drawString(String(buffer), 306, 0, 4); // TODO zmienic font
 
             sprintf(buffer, "%H %2.0f", round(bme.readHumidity()));
