@@ -273,4 +273,4 @@ void setup(void)
   Serial.println("Running...");
 }
 
-void loop() { return; };
+void loop() { vTaskDelete(NULL); };

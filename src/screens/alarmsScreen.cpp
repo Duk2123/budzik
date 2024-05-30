@@ -124,6 +124,7 @@ void toggleAlarm()
 
             drawAlarms();
             drawAlarmsNav();
+            saveVectorToFile("/alarms", alarms);
             return;
         }
         else

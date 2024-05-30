@@ -150,6 +150,7 @@ public:
         }
         else
             enabled = false;
+        saveVectorToFile("/alarms", alarms);
     }
 
     /// @brief Returns time of the alarm
