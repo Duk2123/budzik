@@ -169,18 +169,17 @@ void updateAlarmsScreen(void *params)
                     alarms.push_back(alarm);
 
                 saveVectorToFile("/alarms", alarms);
-
-                xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
-                {
-                    AlarmsBackground.fillSprite(BLACK);
-                    AlarmsBackground.pushSprite(0, 40);
-                }
-                delay(8);
-                xSemaphoreGive(tftMutex);
-
-                drawAlarms();
-                drawAlarmsNav();
             }
+            xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
+            {
+                AlarmsBackground.fillSprite(BLACK);
+                AlarmsBackground.pushSprite(0, 40);
+            }
+            delay(8);
+            xSemaphoreGive(tftMutex);
+
+            drawAlarms();
+            drawAlarmsNav();
         }
         vTaskDelay(250);
     }
