@@ -136,6 +136,11 @@ void toggleAlarm()
 ScreenObject AlarmsScreen({{32, 72, 62, 286}, {0, 0, 480, 360}}, {{0, 0, 480, 320}}, {{32, 72, 62, 286}, {418, 165, 448, 195}, {418, 72, 448, 286}},
                           {removeAlarm, displaySleep}, {alarmsGoToMenu}, {toggleAlarm, addAlarm, alarmsChangePage});
 
+bool compareAlarms(UserAlarm a, UserAlarm b)
+{
+    return a.getTime() < b.getTime();
+}
+
 void updateAlarmsScreen(void *params)
 {
     for (;;)
@@ -154,7 +159,15 @@ void updateAlarmsScreen(void *params)
                 }
 
                 UserAlarm alarm(String(time), days);
-                alarms.push_back(alarm);
+
+                if (alarms.size() >= 1)
+                    alarms.insert(std::lower_bound(alarms.begin(), alarms.end(), alarm, compareAlarms),
+                                  alarm);
+
+                else
+                    alarms.push_back(alarm);
+
+                saveVectorToFile("/alarms", alarms);
 
                 xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
                 {

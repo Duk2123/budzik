@@ -66,7 +66,7 @@ void drawStatusBarClock()
 
 void statusBar(void *params)
 {
-    String prevTime = "00:00:00";
+    String prevTime = "00:00";
     String time;
 
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
@@ -95,6 +95,7 @@ void statusBar(void *params)
         }
 
         time = getRtcTime();
+        time.remove(5, 3);
         if (statusBarClockActive && time != prevTime)
         {
             prevTime = time;

@@ -5,6 +5,7 @@
 #include "globals.h"
 #endif
 
+void alarmPopUp(void *params);
 extern TFT_eSPI tft;
 
 String convertSpecialLetters(String text);
@@ -21,9 +22,10 @@ extern TaskHandle_t updateScreenElement_t;
 extern SemaphoreHandle_t tftMutex;
 extern TaskHandle_t handlePopup_t;
 
+void alarmPopUp(void *params);
 class UserAlarm
 {
-private:
+public:
     bool enabled;
     int alarmHours;   // 0-24
     int alarmMinutes; // 0-60
@@ -31,8 +33,7 @@ private:
     bool isRepeating = false;
     std::array<bool, 7> repeatOnDayOfWeek; // Index 0 - Sunday ... 6 - Saturday
 
-public:
-    UserAlarm(String time, std::array<bool, 7> dayOfRepeat)
+    UserAlarm(String time = "00:00", std::array<bool, 7> dayOfRepeat = {false, false, false, false, false, false, false})
     {
         DateTime now = rtc.now();
         enabled = true;
@@ -131,7 +132,7 @@ public:
     /// @brief Activates alarm
     void activateAlarm()
     {
-        // TODO add actual alarm action here
+        xTaskCreate(alarmPopUp, "alarmPopUp", 5012, NULL, 4, &handlePopup_t);
         Serial.println("Activating alarm");
         if (isRepeating)
         {
@@ -183,8 +184,34 @@ public:
         }
         return "Once";
     }
+
+    void serialize(File &file)
+    {
+        file.write(reinterpret_cast<uint8_t *>(&enabled), sizeof(enabled));
+        file.write(reinterpret_cast<uint8_t *>(&alarmHours), sizeof(alarmHours));
+        file.write(reinterpret_cast<uint8_t *>(&alarmMinutes), sizeof(alarmMinutes));
+        file.write(reinterpret_cast<uint8_t *>(&alarmDay), sizeof(alarmDay));
+        file.write(reinterpret_cast<uint8_t *>(&isRepeating), sizeof(isRepeating));
+        file.write(reinterpret_cast<uint8_t *>(&repeatOnDayOfWeek), sizeof(repeatOnDayOfWeek));
+    }
+    void deserialize(File &file)
+    {
+        file.read(reinterpret_cast<uint8_t *>(&enabled), sizeof(enabled));
+        file.read(reinterpret_cast<uint8_t *>(&alarmHours), sizeof(alarmHours));
+        file.read(reinterpret_cast<uint8_t *>(&alarmMinutes), sizeof(alarmMinutes));
+        file.read(reinterpret_cast<uint8_t *>(&alarmDay), sizeof(alarmDay));
+        file.read(reinterpret_cast<uint8_t *>(&isRepeating), sizeof(isRepeating));
+        file.read(reinterpret_cast<uint8_t *>(&repeatOnDayOfWeek), sizeof(repeatOnDayOfWeek));
+    }
 };
 
 extern std::vector<UserAlarm> alarms;
+
+extern TaskHandle_t alarmAudio_t;
+void alarmAudio(void *params);
+
+extern TaskHandle_t alarmInterrupt_t;
+
+void saveVectorToFile(const char *filename, std::vector<UserAlarm> &data);
 
 #endif

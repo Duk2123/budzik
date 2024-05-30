@@ -126,20 +126,90 @@ void alarmInterrupt(void *params)
   }
 }
 
+Audio audio;
+
+TaskHandle_t alarmAudio_t;
+void alarmAudio(void *params)
+{
+  audio.connecttoFS(SD, "/test.mp3");
+  audio.setFileLoop(true);
+  for (;;)
+  {
+    audio.loop();
+  }
+}
+
+File myFile;
+
+void saveVectorToFile(const char *filename, std::vector<UserAlarm> &data)
+{
+  myFile = SD.open(filename, FILE_WRITE);
+  if (myFile)
+  {
+    for (auto &obj : data)
+    {
+      obj.serialize(myFile);
+    }
+    myFile.close();
+    Serial.println("vector saved");
+  }
+  else
+  {
+    Serial.println("save error");
+  }
+}
+
+void loadVectorFromFile(const char *filename, std::vector<UserAlarm> &data)
+{
+  myFile = SD.open(filename, FILE_READ);
+  if (myFile)
+  {
+    data.clear();
+    while (myFile.available())
+    {
+      UserAlarm obj;
+      obj.deserialize(myFile);
+      data.push_back(obj);
+    }
+    myFile.close();
+    Serial.println("vector loaded");
+  }
+  else
+  {
+    Serial.println("load error");
+  }
+}
+
+SPIClass spi2(HSPI);
+
 void setup(void)
 {
   // TODO usunąć delay i printy
   delay(2500); // do debugowania
   Serial.begin(115200);
   Serial.println("\n\nStarting...");
+
   setupRtc();
 
   Serial.println(getRtcTime());
   Serial.println(getRtcDate());
 
+  digitalWrite(TOUCH_CS, HIGH);
+  digitalWrite(TFT_CS, HIGH);
+  digitalWrite(SD_CS, HIGH);
+
   tft.init();
-  tft.setRotation(1);
   setBrightness(0);
+
+  spi2.begin(SD_SCLK, SD_MISO, SD_MOSI, SD_CS);
+
+  if (!SD.begin(SD_CS, spi2, 8000000))
+  {
+    Serial.println("Card Mount Failed");
+    return;
+  }
+
+  tft.setRotation(1);
 
   uint16_t calData[5] = {225, 3765, 200, 3765, 7};
   tft.setTouch(calData);
@@ -152,14 +222,51 @@ void setup(void)
   setupClimateSensor();
 
   // xTaskCreate(debug, "debug", 20048, NULL, 1, &debug_t);                         // TODO obciąć pamięć
-  xTaskCreate(handleTouch, "handleTouch", 20048, NULL, 4, &handleTouch_t);       // TODO obciąć pamięć
-  delay(250);                                                                    // TODO poprawić delay
-  xTaskCreate(detectTouch, "detectTouch", 20048, NULL, 5, &detectTouch_t);       // TODO obciąć pamięć
-  xTaskCreate(updateDisplay, "updateDisplay", 20048, NULL, 3, &updateDisplay_t); // TODO obciąć pamięć
-  xTaskCreate(statusBar, "statusBar", 20048, NULL, 2, &statusBar_t);             // TODO obciąć pamięć
-  xTaskCreate(autoSyncRtc, "autoSyncRtc(", 4096, NULL, 1, &autoSyncRtc_t);       // TODO obciąć pamięć
-  xTaskCreate(alarmInterrupt, "alarmInterrupt", 20048, NULL, 6, &alarmInterrupt_t);
+  xTaskCreate(handleTouch, "handleTouch", 4096, NULL, 4, &handleTouch_t);       // TODO obciąć pamięć
+  delay(250);                                                                   // TODO poprawić delay
+  xTaskCreate(detectTouch, "detectTouch", 4096, NULL, 5, &detectTouch_t);       // TODO obciąć pamięć
+  xTaskCreate(updateDisplay, "updateDisplay", 4096, NULL, 3, &updateDisplay_t); // TODO obciąć pamięć
+  xTaskCreate(statusBar, "statusBar", 4096, NULL, 2, &statusBar_t);             // TODO obciąć pamięć
+  xTaskCreate(autoSyncRtc, "autoSyncRtc(", 4096, NULL, 1, &autoSyncRtc_t);      // TODO obciąć pamięć
+  xTaskCreate(alarmInterrupt, "alarmInterrupt", 4096, NULL, 6, &alarmInterrupt_t);
   clockScreen();
+
+  uint8_t cardType = SD.cardType();
+
+  if (cardType == CARD_NONE)
+  {
+    Serial.println("No SD card attached");
+    return;
+  }
+
+  Serial.print("SD Card Type: ");
+  if (cardType == CARD_MMC)
+  {
+    Serial.println("MMC");
+  }
+  else if (cardType == CARD_SD)
+  {
+    Serial.println("SDSC");
+  }
+  else if (cardType == CARD_SDHC)
+  {
+    Serial.println("SDHC");
+  }
+  else
+  {
+    Serial.println("UNKNOWN");
+  }
+
+  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+  Serial.printf("SD Card Size: %lluMB\n", cardSize);
+
+  Serial.println(SD.exists("/test.mp3"));
+
+  audio.setPinout(41, 40, 42);
+  audio.setVolume(12); // 0...21
+
+  if (SD.exists("/alarms"))
+    loadVectorFromFile("/alarms", alarms);
 
   delay(2500);
   setBrightness(100);
