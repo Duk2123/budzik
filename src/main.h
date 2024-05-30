@@ -25,7 +25,7 @@ extern TaskHandle_t handlePopup_t;
 void alarmPopUp(void *params);
 class UserAlarm
 {
-public:
+private:
     bool enabled;
     int alarmHours;   // 0-24
     int alarmMinutes; // 0-60
@@ -33,8 +33,11 @@ public:
     bool isRepeating = false;
     std::array<bool, 7> repeatOnDayOfWeek; // Index 0 - Sunday ... 6 - Saturday
 
+public:
     UserAlarm(String time = "00:00", std::array<bool, 7> dayOfRepeat = {false, false, false, false, false, false, false})
     {
+        // TODO add an time validation check
+
         DateTime now = rtc.now();
         enabled = true;
         alarmHours = time.substring(0, 2).toInt();
