@@ -84,6 +84,7 @@ void removeAlarm()
         if (coords1.y < touchCurrentAction[2] && touchCurrentAction[2] < coords2.y)
         {
             alarms.erase(alarms.begin() + i);
+            saveVectorToFile("/alarms", alarms);
             xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
             {
                 AlarmsBackground.fillSprite(BLACK);
