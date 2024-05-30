@@ -273,6 +273,4 @@ void setup(void)
   Serial.println("Running...");
 }
 
-void loop()
-{
-}
+void loop() { return; };
