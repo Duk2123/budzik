@@ -23,6 +23,11 @@ extern SemaphoreHandle_t tftMutex;
 extern TaskHandle_t handlePopup_t;
 
 void alarmPopUp(void *params);
+
+class UserAlarm;
+void saveVectorToFile(const char *filename, std::vector<UserAlarm> &data);
+
+extern std::vector<UserAlarm> alarms;
 class UserAlarm
 {
 private:
@@ -209,13 +214,9 @@ public:
     }
 };
 
-extern std::vector<UserAlarm> alarms;
-
 extern TaskHandle_t alarmAudio_t;
 void alarmAudio(void *params);
 
 extern TaskHandle_t alarmInterrupt_t;
-
-void saveVectorToFile(const char *filename, std::vector<UserAlarm> &data);
 
 #endif
