@@ -73,8 +73,9 @@ void alarmHandleSwipe()
 bool alarmSnoozeCalled = false;
 void alarmHandlePress()
 {
-    if (snoozeCounter++ < 4)
+    if (snoozeCounter < 4)
     {
+        snoozeCounter++;
         detectTouchSuspendCounter = 4;
         delay(16);
         alarmSnoozeCalled = true;
@@ -86,6 +87,7 @@ ScreenObject AlarmPopUp({{0, 0, 480, 320}}, {{0, 0, 480, 320}}, {},
 
 void alarmPopUp(void *params)
 {
+
     vTaskSuspend(statusBar_t);
     if (updateScreenElement_t != NULL && eTaskGetState(updateScreenElement_t) != 4)
     {
@@ -97,6 +99,7 @@ void alarmPopUp(void *params)
 
     ActiveScreenElement = &AlarmPopUp;
 
+    vTaskDelay(16);
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         AlarmBackground.createSprite(480, 320);
@@ -117,14 +120,25 @@ void alarmPopUp(void *params)
     vTaskDelay(32);
     xSemaphoreGive(tftMutex);
 
+    snoozeCounter = 0;
+
+    setBrightness(100);
+
     drawAlarmClock();
     drawAlarmDate();
     drawAlarmInfo();
 
     vTaskDelay(500);
-    xTaskCreatePinnedToCore(alarmAudio, "alarmAudio", 200048, NULL, 10, &alarmAudio_t, 0);
+    xTaskCreate(alarmAudio, "alarmAudio", 10024, NULL, 10, &alarmAudio_t);
 
     uint32_t snoozeTime;
+    bool snooze = false;
+
+    uint32_t startUnixTime = rtc.now().unixtime();
+
+    String startTime = getRtcTime();
+    startTime.remove(5, 3);
+
     String time;
     String prevTime = "00:00";
 
@@ -137,17 +151,18 @@ void alarmPopUp(void *params)
             drawAlarmClock();
             drawAlarmDate();
         }
-        if (alarmSnoozeCalled && alarmAudio_t != NULL && eTaskGetState(alarmAudio_t) != 4)
+        if (alarmSnoozeCalled)
         {
             snoozeTime = rtc.now().unixtime();
             vTaskDelete(alarmAudio_t);
-        }
-        if (alarmSnoozeCalled && rtc.now().unixtime() - snoozeTime > 60)
-        {
-            xTaskCreatePinnedToCore(alarmAudio, "alarmAudio", 200048, NULL, 10, &alarmAudio_t, 0);
+            snooze = true;
             alarmSnoozeCalled = false;
         }
-        Serial.println(rtc.now().unixtime() - snoozeTime);
+        if (snooze && rtc.now().unixtime() - snoozeTime > 60)
+        {
+            xTaskCreate(alarmAudio, "alarmAudio", 10024, NULL, 10, &alarmAudio_t);
+            snooze = false;
+        }
         vTaskDelay(300);
     }
     alarmEndCalled = false;
@@ -173,7 +188,16 @@ void alarmPopUp(void *params)
     vTaskResume(alarmInterrupt_t);
     vTaskResume(autoSyncRtc_t);
 
+    setBrightness(prevBrightness);
+
     clockScreen();
+
+    char buffer[64];
+
+    File file = SD.open("/logs/alarms.csv", FILE_APPEND);
+    sprintf(buffer, "%d,%s,%d,%d", startUnixTime, startTime, rtc.now().unixtime() - startUnixTime, snoozeCounter);
+    file.println(buffer);
+    file.close();
 
     vTaskDelete(NULL);
 }

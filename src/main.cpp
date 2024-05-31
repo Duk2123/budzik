@@ -80,29 +80,6 @@ TaskHandle_t handlePopup_t;
 
 SemaphoreHandle_t tftMutex = xSemaphoreCreateMutex();
 
-TaskHandle_t debug_t;
-void debug(void *params) // TODO usunąć debug / dodać funkcje monitorującą
-{
-  char buffer[1024];
-  for (;;)
-  {
-    Serial.println();
-    Serial.println("heap size|detect touch|handle touch|update display|update element|handle popup|connect wifi|status bar|sync rtc");
-    sprintf(buffer, "%9d|%12d|%12d|%14d|%14d|%12d|%12d|%10d|%8d",
-            esp_get_free_heap_size(), detectTouch_t != NULL ? uxTaskGetStackHighWaterMark(detectTouch_t) : -1, handleTouch_t != NULL ? uxTaskGetStackHighWaterMark(handleTouch_t) : -1,
-            updateDisplay_t != NULL ? uxTaskGetStackHighWaterMark(updateDisplay_t) : -1, updateScreenElement_t != NULL ? uxTaskGetStackHighWaterMark(updateScreenElement_t) : -1,
-            -2, -2,
-            statusBar_t != NULL ? uxTaskGetStackHighWaterMark(statusBar_t) : -1, autoSyncRtc_t != NULL ? uxTaskGetStackHighWaterMark(autoSyncRtc_t) : -1);
-    Serial.println(buffer);
-    sprintf(buffer, "status   |%12d|%12d|%14d|%14d|%12d|%12d|%10d|%8d", detectTouch_t != NULL ? eTaskGetState(detectTouch_t) : -1, handleTouch_t != NULL ? eTaskGetState(handleTouch_t) : -1,
-            updateDisplay_t != NULL ? eTaskGetState(updateDisplay_t) : -1, updateScreenElement_t != NULL ? eTaskGetState(updateScreenElement_t) : -1, handlePopup_t != NULL ? eTaskGetState(handlePopup_t) : -1,
-            connectToNetwork_t != NULL ? eTaskGetState(connectToNetwork_t) : -1, statusBar_t != NULL ? eTaskGetState(statusBar_t) : -1, autoSyncRtc_t != NULL ? eTaskGetState(autoSyncRtc_t) : -1);
-    Serial.println(buffer);
-    Serial.println();
-    vTaskDelay(10000);
-  }
-}
-
 std::vector<UserAlarm> alarms = {};
 
 TaskHandle_t alarmInterrupt_t;
@@ -119,6 +96,8 @@ void alarmInterrupt(void *params)
         if (alarms[i].isActive() && alarms[i].timeUntilAlarm() == "0 minutes")
         {
           alarms[i].activateAlarm();
+          vTaskDelay(1000);
+          saveVectorToFile("/bin/alarms", alarms);
         }
       }
     }
@@ -131,26 +110,27 @@ Audio audio;
 TaskHandle_t alarmAudio_t;
 void alarmAudio(void *params)
 {
-  audio.connecttoFS(SD, "/test.mp3");
+  Serial.println("Audio");
+  audio.connecttoFS(SD, "/audio/default_alarm.mp3");
   audio.setFileLoop(true);
+
   for (;;)
   {
     audio.loop();
   }
 }
 
-File myFile;
-
-void saveVectorToFile(const char *filename, std::vector<UserAlarm> &data)
+void saveVectorToFile(const char *name, std::vector<UserAlarm> &data)
 {
-  myFile = SD.open(filename, FILE_WRITE);
-  if (myFile)
+  File file;
+  file = SD.open(name, FILE_WRITE);
+  if (file)
   {
     for (auto &obj : data)
     {
-      obj.serialize(myFile);
+      obj.serialize(file);
     }
-    myFile.close();
+    file.close();
     Serial.println("vector saved");
   }
   else
@@ -159,19 +139,20 @@ void saveVectorToFile(const char *filename, std::vector<UserAlarm> &data)
   }
 }
 
-void loadVectorFromFile(const char *filename, std::vector<UserAlarm> &data)
+void loadVectorFromFile(const char *name, std::vector<UserAlarm> &data)
 {
-  myFile = SD.open(filename, FILE_READ);
-  if (myFile)
+  File file;
+  file = SD.open(name, FILE_READ);
+  if (file)
   {
     data.clear();
-    while (myFile.available())
+    while (file.available())
     {
       UserAlarm obj;
-      obj.deserialize(myFile);
+      obj.deserialize(file);
       data.push_back(obj);
     }
-    myFile.close();
+    file.close();
     Serial.println("vector loaded");
   }
   else
@@ -231,46 +212,17 @@ void setup(void)
   xTaskCreate(alarmInterrupt, "alarmInterrupt", 4096, NULL, 6, &alarmInterrupt_t);
   clockScreen();
 
-  uint8_t cardType = SD.cardType();
-
-  if (cardType == CARD_NONE)
-  {
-    Serial.println("No SD card attached");
-    return;
-  }
-
-  Serial.print("SD Card Type: ");
-  if (cardType == CARD_MMC)
-  {
-    Serial.println("MMC");
-  }
-  else if (cardType == CARD_SD)
-  {
-    Serial.println("SDSC");
-  }
-  else if (cardType == CARD_SDHC)
-  {
-    Serial.println("SDHC");
-  }
-  else
-  {
-    Serial.println("UNKNOWN");
-  }
-
-  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-  Serial.printf("SD Card Size: %lluMB\n", cardSize);
-
-  Serial.println(SD.exists("/test.mp3"));
-
   audio.setPinout(41, 40, 42);
   audio.setVolume(12); // 0...21
 
-  if (SD.exists("/alarms"))
-    loadVectorFromFile("/alarms", alarms);
+  if (SD.exists("/bin/alarms"))
+    loadVectorFromFile("/bin/alarms", alarms);
 
   delay(2500);
   setBrightness(100);
   Serial.println("Running...");
+
+  WiFi.begin("Netianet", "Na765432"); // TODO debug
 }
 
 void loop() { vTaskDelete(NULL); };

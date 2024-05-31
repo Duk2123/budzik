@@ -12,6 +12,8 @@ String networkPassword;
 
 bool lostConnection = false;
 
+void serverSetup();
+
 TaskHandle_t WiFiConnectedEvent_t;
 /** @brief Task for WiFi connected event */
 void WiFiConnectedEvent(void *params)
@@ -23,6 +25,7 @@ void WiFiConnectedEvent(void *params)
     lostConnection = false;
     timeClient.begin();
     timeClient.update();
+    serverSetup();
     Serial.println("Connected");
     vTaskNotifyGiveFromISR(updateScreenElement_t, NULL);
     vTaskDelete(NULL);
@@ -215,4 +218,32 @@ std::pair<float, float> getLocalization(String city, String countryCode)
     {
         throw ConnectionError();
     }
+}
+
+AsyncWebServer server(80);
+
+void serverSetup()
+{
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                String index_html;
+                File file = SD.open("/www/page.html");
+                while (file.available())
+                {
+                    index_html += (char)file.read();
+                }
+                file.close();
+                request->send_P(200, "text/html", index_html.c_str()); });
+
+    server.on("/status", HTTP_GET, [](AsyncWebServerRequest *request)
+              { request->send(200, "text/plain", "Working..."); });
+
+    server.on("/logs/climate", HTTP_GET, [](AsyncWebServerRequest *request)
+              { request->send(SD, "/logs/climate.csv", "text/csv", true); });
+
+    server.on("/logs/alarms", HTTP_GET, [](AsyncWebServerRequest *request)
+              { request->send(SD, "/logs/alarms.csv", "text/csv", true); });
+
+    Serial.println(WiFi.localIP());
+    server.begin();
 }

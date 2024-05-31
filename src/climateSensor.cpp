@@ -1,10 +1,29 @@
 #include <globals.h>
 #include <climateSensor.h>
+#include <time.h>
 
 TwoWire I2C_BME280 = TwoWire(1);
 
 Adafruit_BME280 bme;
 bool bmeStatus = false;
+
+TaskHandle_t climateLogStatistics_t;
+void climateLogStatistics(void *params)
+{
+    char buffer[64];
+    for (;;)
+    {
+        if (rtc.now().minute() % 15 == 0)
+        {
+            File file = SD.open("/logs/climate.csv", FILE_APPEND);
+            sprintf(buffer, "%d,%.2f,%.0f,%.0f", rtc.now().unixtime(), bme.readTemperature(), bme.readHumidity(), bme.readPressure() / 100.0F);
+            file.println(buffer);
+            file.close();
+            vTaskDelay(600000);
+        }
+        vTaskDelay(20000);
+    }
+}
 
 /** @brief climate sensor setup
  * @return true if successful
@@ -27,6 +46,8 @@ bool setupClimateSensor()
                     Adafruit_BME280::SAMPLING_X2, // humidity
                     Adafruit_BME280::FILTER_X16,
                     Adafruit_BME280::STANDBY_MS_0_5);
+
+    xTaskCreate(climateLogStatistics, "climateLogStatistics", 4048, NULL, 1, &climateLogStatistics_t);
 
     Serial.print("Temperature = ");
     Serial.print(bme.readTemperature());

@@ -7,6 +7,8 @@
 
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 
 struct ConnectionError : public std::exception
 {

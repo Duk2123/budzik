@@ -414,6 +414,7 @@ void keyboardPopUp(void *params)
     ScreenObject *callingElement = ActiveScreenElement;
     ActiveScreenElement = &KeyboardPopUp;
 
+    vTaskDelay(32);
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         KeySprite.createSprite(40, 40);

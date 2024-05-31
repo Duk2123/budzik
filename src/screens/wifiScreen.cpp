@@ -23,6 +23,9 @@ void WifiGoToMenu()
         WifiStatus.deleteSprite();
         AvailableNetwork.deleteSprite();
 
+        changeToIpMode = false;
+        drawWiFiStatus();
+
         delay(8);
         menuScreen();
     }
@@ -34,6 +37,9 @@ void WifiGoToMenu()
         WifiBackground.deleteSprite();
         WifiStatus.deleteSprite();
         AvailableNetwork.deleteSprite();
+
+        changeToIpMode = false;
+        drawWiFiStatus();
 
         delay(8);
         clockScreen();
@@ -288,6 +294,9 @@ void wifiScreen()
 {
     detectTouchSuspendCounter = 4;
     ActiveScreenElement = &WifiScreen;
+
+    changeToIpMode = true;
+    drawWiFiStatus();
 
     if (wifiActivePage == 0)
 

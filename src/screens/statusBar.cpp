@@ -8,6 +8,7 @@ TFT_eSprite statusBarClock = TFT_eSprite(&tft);
 TaskHandle_t statusBar_t;
 
 bool statusBarWiFiActive = true;
+bool changeToIpMode = false;
 
 void drawWiFiStatus()
 {
@@ -21,7 +22,7 @@ void drawWiFiStatus()
             {
 
                 statusBarWiFi.fillRect(0, 0, 32, 32, hexToColor("D9D9D9")); // TODO ikona
-                statusBarWiFi.drawString(WiFi.SSID(), 40, 8, 2);
+                statusBarWiFi.drawString(changeToIpMode ? WiFi.localIP().toString() : WiFi.SSID(), 40, 8, 2);
             }
             else
             {

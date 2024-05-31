@@ -140,7 +140,7 @@ public:
     /// @brief Activates alarm
     void activateAlarm()
     {
-        xTaskCreate(alarmPopUp, "alarmPopUp", 5012, NULL, 4, &handlePopup_t);
+        xTaskCreate(alarmPopUp, "alarmPopUp", 10024, NULL, 4, &handlePopup_t);
         Serial.println("Activating alarm");
         if (isRepeating)
         {
@@ -155,7 +155,6 @@ public:
         }
         else
             enabled = false;
-        saveVectorToFile("/alarms", alarms);
     }
 
     /// @brief Returns time of the alarm

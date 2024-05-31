@@ -77,6 +77,9 @@ void addAlarm()
 
 void removeAlarm()
 {
+    detectTouchSuspendCounter = 4;
+    delay(16);
+
     coordinates coords1 = {32, 72};
     coordinates coords2 = {62, 102};
     for (int i = alarmsCurrentPage * 5; i < alarms.size() && i < alarmsCurrentPage * 5 + 5; i++)
@@ -107,6 +110,9 @@ void removeAlarm()
 
 void toggleAlarm()
 {
+    detectTouchSuspendCounter = 4;
+    delay(16);
+
     coordinates coords1 = {32, 72};
     coordinates coords2 = {62, 102};
     for (int i = alarmsCurrentPage * 5; i < alarms.size() && i < alarmsCurrentPage * 5 + 5; i++)
@@ -124,6 +130,7 @@ void toggleAlarm()
 
             drawAlarms();
             drawAlarmsNav();
+            delay(150);
             saveVectorToFile("/alarms", alarms);
             return;
         }

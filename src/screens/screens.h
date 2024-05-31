@@ -93,6 +93,7 @@ void statusBar(void *params);
 
 void drawWiFiStatus();
 extern bool statusBarWiFiActive;
+extern bool changeToIpMode;
 
 void drawStatusBarClock();
 extern bool statusBarClockActive;
