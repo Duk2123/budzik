@@ -88,7 +88,36 @@ public:
         if (enabled)
             enabled = false;
         else
+        {
             enabled = true;
+            DateTime now = rtc.now();
+            int today = now.dayOfTheWeek();
+            if (isRepeating)
+            {
+                if (repeatOnDayOfWeek[today] && (alarmHours * 60 + alarmMinutes > now.hour() * 60 + now.minute()))
+                {
+                    alarmDay = today;
+                }
+                else
+                {
+                    for (int i = today + 1; i <= today + 7; i++)
+                    {
+                        if (repeatOnDayOfWeek[i % 7])
+                        {
+                            alarmDay = i % 7;
+                            break;
+                        }
+                    };
+                }
+            }
+            else
+            {
+                if (alarmHours * 60 + alarmMinutes > now.hour() * 60 + now.minute())
+                    alarmDay = today;
+                else
+                    alarmDay = (today + 1) % 7;
+            }
+        }
 
         return enabled;
     }
@@ -140,7 +169,7 @@ public:
     /// @brief Activates alarm
     void activateAlarm()
     {
-        xTaskCreate(alarmPopUp, "alarmPopUp", 10024, NULL, 4, &handlePopup_t);
+        xTaskCreate(alarmPopUp, "alarmPopUp", 4096, NULL, 4, &handlePopup_t);
         Serial.println("Activating alarm");
         if (isRepeating)
         {

@@ -70,10 +70,11 @@ void alarmHandleSwipe()
     }
 }
 
+bool snooze = false;
 bool alarmSnoozeCalled = false;
 void alarmHandlePress()
 {
-    if (snoozeCounter < 4)
+    if (!snooze && snoozeCounter < 4)
     {
         snoozeCounter++;
         detectTouchSuspendCounter = 4;
@@ -99,7 +100,7 @@ void alarmPopUp(void *params)
 
     ActiveScreenElement = &AlarmPopUp;
 
-    vTaskDelay(16);
+    vTaskDelay(64);
     xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
     {
         AlarmBackground.createSprite(480, 320);
@@ -129,10 +130,9 @@ void alarmPopUp(void *params)
     drawAlarmInfo();
 
     vTaskDelay(500);
-    xTaskCreate(alarmAudio, "alarmAudio", 10024, NULL, 10, &alarmAudio_t);
+    xTaskCreate(alarmAudio, "alarmAudio", 4096, NULL, 10, &alarmAudio_t);
 
     uint32_t snoozeTime;
-    bool snooze = false;
 
     uint32_t startUnixTime = rtc.now().unixtime();
 
@@ -160,7 +160,7 @@ void alarmPopUp(void *params)
         }
         if (snooze && rtc.now().unixtime() - snoozeTime > 60)
         {
-            xTaskCreate(alarmAudio, "alarmAudio", 10024, NULL, 10, &alarmAudio_t);
+            xTaskCreate(alarmAudio, "alarmAudio", 4096, NULL, 10, &alarmAudio_t);
             snooze = false;
         }
         vTaskDelay(300);

@@ -10,6 +10,7 @@
 #define DS3231_SCL 2
 
 extern RTC_DS3231 rtc;
+extern bool rtcRunning;
 void setupRtc();
 String getRtcTime();
 String getRtcDate();

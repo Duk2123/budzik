@@ -87,7 +87,7 @@ void removeAlarm()
         if (coords1.y < touchCurrentAction[2] && touchCurrentAction[2] < coords2.y)
         {
             alarms.erase(alarms.begin() + i);
-            saveVectorToFile("/alarms", alarms);
+            saveVectorToFile("/bin/alarms", alarms);
             xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
             {
                 AlarmsBackground.fillSprite(BLACK);
@@ -131,7 +131,7 @@ void toggleAlarm()
             drawAlarms();
             drawAlarmsNav();
             delay(150);
-            saveVectorToFile("/alarms", alarms);
+            saveVectorToFile("/bin/alarms", alarms);
             return;
         }
         else
@@ -176,7 +176,7 @@ void updateAlarmsScreen(void *params)
                 else
                     alarms.push_back(alarm);
 
-                saveVectorToFile("/alarms", alarms);
+                saveVectorToFile("/bin/alarms", alarms);
             }
             xSemaphoreTake(tftMutex, pdMS_TO_TICKS(30000));
             {
@@ -261,5 +261,5 @@ void alarmsScreen()
     drawAlarms();
     drawAlarmsNav();
 
-    xTaskCreate(updateAlarmsScreen, "updateWeatherScreen", 20048, NULL, 3, &updateScreenElement_t);
+    xTaskCreate(updateAlarmsScreen, "updateWeatherScreen", 10024, NULL, 3, &updateScreenElement_t);
 }

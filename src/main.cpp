@@ -111,19 +111,19 @@ TaskHandle_t alarmAudio_t;
 void alarmAudio(void *params)
 {
   Serial.println("Audio");
+  audio.stopSong();
   audio.connecttoFS(SD, "/audio/default_alarm.mp3");
   audio.setFileLoop(true);
-
   for (;;)
   {
     audio.loop();
   }
 }
 
-void saveVectorToFile(const char *name, std::vector<UserAlarm> &data)
+void saveVectorToFile(const char *path, std::vector<UserAlarm> &data)
 {
   File file;
-  file = SD.open(name, FILE_WRITE);
+  file = SD.open(path, FILE_WRITE);
   if (file)
   {
     for (auto &obj : data)
@@ -131,7 +131,6 @@ void saveVectorToFile(const char *name, std::vector<UserAlarm> &data)
       obj.serialize(file);
     }
     file.close();
-    Serial.println("vector saved");
   }
   else
   {
@@ -139,10 +138,10 @@ void saveVectorToFile(const char *name, std::vector<UserAlarm> &data)
   }
 }
 
-void loadVectorFromFile(const char *name, std::vector<UserAlarm> &data)
+void loadVectorFromFile(const char *path, std::vector<UserAlarm> &data)
 {
   File file;
-  file = SD.open(name, FILE_READ);
+  file = SD.open(path, FILE_READ);
   if (file)
   {
     data.clear();
@@ -153,7 +152,6 @@ void loadVectorFromFile(const char *name, std::vector<UserAlarm> &data)
       data.push_back(obj);
     }
     file.close();
-    Serial.println("vector loaded");
   }
   else
   {
@@ -178,6 +176,9 @@ void setup(void)
   digitalWrite(TOUCH_CS, HIGH);
   digitalWrite(TFT_CS, HIGH);
   digitalWrite(SD_CS, HIGH);
+
+  audio.setPinout(41, 40, 42);
+  audio.setVolume(12); // 0...21
 
   tft.init();
   setBrightness(0);
@@ -212,17 +213,12 @@ void setup(void)
   xTaskCreate(alarmInterrupt, "alarmInterrupt", 4096, NULL, 6, &alarmInterrupt_t);
   clockScreen();
 
-  audio.setPinout(41, 40, 42);
-  audio.setVolume(12); // 0...21
-
   if (SD.exists("/bin/alarms"))
     loadVectorFromFile("/bin/alarms", alarms);
 
   delay(2500);
   setBrightness(100);
   Serial.println("Running...");
-
-  WiFi.begin("Netianet", "Na765432"); // TODO debug
 }
 
 void loop() { vTaskDelete(NULL); };

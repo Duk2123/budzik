@@ -173,5 +173,5 @@ void clockScreen()
     delay(8);
     xSemaphoreGive(tftMutex);
 
-    xTaskCreate(updateClock, "updateClock", 20048, NULL, 3, &updateScreenElement_t); // TODO pamięć
+    xTaskCreate(updateClock, "updateClock", 4096, NULL, 3, &updateScreenElement_t); // TODO pamięć
 }

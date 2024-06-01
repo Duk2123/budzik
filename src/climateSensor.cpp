@@ -11,6 +11,10 @@ TaskHandle_t climateLogStatistics_t;
 void climateLogStatistics(void *params)
 {
     char buffer[64];
+    while (!rtcRunning)
+    {
+        vTaskDelay(500);
+    }
     for (;;)
     {
         if (rtc.now().minute() % 15 == 0)
@@ -47,7 +51,7 @@ bool setupClimateSensor()
                     Adafruit_BME280::FILTER_X16,
                     Adafruit_BME280::STANDBY_MS_0_5);
 
-    xTaskCreate(climateLogStatistics, "climateLogStatistics", 4048, NULL, 1, &climateLogStatistics_t);
+    xTaskCreate(climateLogStatistics, "climateLogStatistics", 4096, NULL, 1, &climateLogStatistics_t);
 
     Serial.print("Temperature = ");
     Serial.print(bme.readTemperature());

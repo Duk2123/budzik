@@ -99,7 +99,7 @@ void addLocalization()
     if (localizations.size() < 5)
     {
         weatherKeyboardActive = true;
-        xTaskCreate(keyboardPopUp, "keyboardPopUp", 20048, NULL, 3, &handlePopup_t);
+        xTaskCreate(keyboardPopUp, "keyboardPopUp", 4096, NULL, 3, &handlePopup_t);
     }
     // TODO komunikat/błąd
 }
@@ -338,5 +338,5 @@ void weatherScreen()
     drawRoomInfo();
     drawWeatherPages();
 
-    xTaskCreate(updateWeatherScreen, "updateWeatherScreen", 20048, NULL, 3, &updateScreenElement_t);
+    xTaskCreate(updateWeatherScreen, "updateWeatherScreen", 4096, NULL, 3, &updateScreenElement_t);
 }

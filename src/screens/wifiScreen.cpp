@@ -234,7 +234,7 @@ void wifiScreenUpdate(void *params)
             wifiKeyboardActive = false;
             networkPassword = keyboardInput;
             wifiStatusIndex = 1;
-            xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t);
+            xTaskCreate(connectToNetwork, "connectToNetwork", 10024, NULL, 1, &connectToNetwork_t);
         }
         else if (wifiStatusIndex == 1 && ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(10000)) != 0)
         {
@@ -331,5 +331,5 @@ void wifiScreen()
         drawAvailableNetworks();
     }
 
-    xTaskCreate(wifiScreenUpdate, "wifiScreenUpdate", 10024, NULL, 2, &updateScreenElement_t);
+    xTaskCreate(wifiScreenUpdate, "wifiScreenUpdate", 4096, NULL, 2, &updateScreenElement_t);
 }

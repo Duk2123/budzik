@@ -42,7 +42,7 @@ void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
         Serial.println("Disconnected");
         delay(10000);
         if ((connectToNetwork_t == NULL || (WiFiConnectedEvent_t != NULL && eTaskGetState(WiFiConnectedEvent_t) == 4)) && networkSSID != "")
-            xTaskCreate(connectToNetwork, "connectToNetwork", 20048, NULL, 1, &connectToNetwork_t); // TODO zrobić taska który będzie próbował połączyć się z siecią z którą stracono połączenie
+            xTaskCreate(connectToNetwork, "connectToNetwork", 10024, NULL, 1, &connectToNetwork_t); // TODO zrobić taska który będzie próbował połączyć się z siecią z którą stracono połączenie
     }
 }
 
@@ -51,7 +51,7 @@ void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
     while (WiFiConnectedEvent_t != NULL || (WiFiConnectedEvent_t != NULL && eTaskGetState(WiFiConnectedEvent_t) != 4))
         delay(1000);
-    xTaskCreate(WiFiConnectedEvent, "WiFiConnectedEvent", 20048, NULL, 1, &WiFiConnectedEvent_t);
+    xTaskCreate(WiFiConnectedEvent, "WiFiConnectedEvent", 4096, NULL, 1, &WiFiConnectedEvent_t);
 }
 
 TaskHandle_t connectToNetwork_t;
@@ -227,7 +227,7 @@ void serverSetup()
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 String index_html;
-                File file = SD.open("/www/page.html");
+                File file = SD.open("/www/index.html");
                 while (file.available())
                 {
                     index_html += (char)file.read();

@@ -8,6 +8,7 @@ RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 char months[12][20] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
+bool rtcRunning = false;
 /** @brief RTC setup */
 void setupRtc()
 {
@@ -17,7 +18,7 @@ void setupRtc()
         Serial.println("RTC setup failed"); // TODO obsługa błędów
         return;
     }
-
+    rtcRunning = true;
     Serial.println("RTC setup done");
 }
 
